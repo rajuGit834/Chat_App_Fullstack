@@ -1,85 +1,93 @@
-import React, { useEffect, useState } from "react";
-import { LockOutlined, UserOutlined } from "@ant-design/icons";
-import { Button, Checkbox, Flex, Form, Input } from "antd";
+import { LockOutlined, MailOutlined } from "@ant-design/icons";
+import { Button, Checkbox, Form, Input, Row, Col, Typography } from "antd";
 import loginImage from "../../assets/login.jpg";
+import { Link } from "react-router-dom";
+
+const { Title } = Typography;
 
 const LogIn: React.FC = () => {
-  const [form] = Form.useForm();
-  const [clientReady, setClientReady] = useState<boolean>(false);
-
-  // To disable submit button at the beginning.
-  useEffect(() => {
-    setClientReady(true);
-  }, []);
-
   const onFinish = (values: any) => {
-    console.log("Finish:", values);
+    console.log("Received values of form: ", values);
   };
 
   return (
-    <div className="flex justify-center items-center">
-      <div className="w-[50%] bg-cover">
-        <img src={loginImage} alt="login" />
-      </div>
+    <Row
+      justify="center"
+      align="middle"
+      style={{ minHeight: "100vh", padding: "20px" }}
+    >
+      <Col
+        xs={0}
+        sm={0}
+        md={12}
+        lg={10}
+        xl={10}
+        style={{ display: "flex", justifyContent: "center" }}
+      >
+        <img
+          src={loginImage}
+          alt="login"
+          className="w-[100%] max-h-[100vh] object-cover"
+        />
+      </Col>
 
-      <div className="flex flex-col items-center h-screen gap-10 w-[50%] pt-60 p-5">
-        <h1 className="text-[25px] font-bold underline text-[#1268a4]">
-          Login
-        </h1>
+      <Col xs={24} sm={24} md={12} lg={8} xl={6} style={{ padding: "20px" }}>
+        <div className="text-center mb-[20px]">
+          <Title level={2} style={{ color: "#1268a4" }}>
+            Login
+          </Title>
+        </div>
+
         <Form
-          form={form}
           name="login"
-          layout="vertical"
+          initialValues={{ remember: true }}
           onFinish={onFinish}
-          style={{ width: "60%" }}
         >
           <Form.Item
-            name="username"
-            rules={[{ required: true, message: "Please input your username!" }]}
+            name="email"
+            rules={[
+              { type: "email", message: "The input is not a valid E-mail!" },
+              { required: true, message: "Please input your E-mail!" },
+            ]}
           >
-            <Input prefix={<UserOutlined />} placeholder="Email" />
+            <Input prefix={<MailOutlined />} placeholder="Email" size="large" />
           </Form.Item>
+
           <Form.Item
             name="password"
-            rules={[{ required: true, message: "Please input your password!" }]}
+            rules={[{ required: true, message: "Please input your Password!" }]}
           >
-            <Input
+            <Input.Password
               prefix={<LockOutlined />}
-              type="password"
               placeholder="Password"
+              size="large"
             />
           </Form.Item>
-          <Flex justify={"space-between"}>
-            <Form.Item>
-              <Checkbox>Remember me</Checkbox>
-            </Form.Item>
-            <Form.Item>
-              <p className="text-blue-500 cursor-pointer hover:text-blue-700">Forgot password?</p>
-            </Form.Item>
-          </Flex>
-          <Form.Item shouldUpdate>
-            {() => (
-              <Button
-                type="primary"
-                htmlType="submit"
-                style={{ width: "100%" }}
-                disabled={
-                  !clientReady ||
-                  !form.isFieldsTouched(true) ||
-                  !!form.getFieldsError().filter(({ errors }) => errors.length)
-                    .length
-                }
-              >
-                Log in
-              </Button>
-            )}
-          </Form.Item>
+
           <Form.Item>
-            <p className="text-blue-500 cursor-pointer hover:text-blue-700">Register now!</p>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Checkbox>Remember me</Checkbox>
+              <Link to="/forgot-password">Forgot password?</Link>
+            </div>
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block size="large">
+              Log in
+            </Button>
+            <div className="text-center mt-[10px]">
+              Or <Link to="/signup">Register now!</Link>
+            </div>
           </Form.Item>
         </Form>
-      </div>
-    </div>
+      </Col>
+    </Row>
   );
 };
 
