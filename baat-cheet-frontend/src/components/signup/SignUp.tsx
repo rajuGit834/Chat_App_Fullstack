@@ -37,72 +37,70 @@ const SignUp: React.FC = () => {
           <Title level={2} style={{ color: "#1268a4" }}>
             SignUp
           </Title>
-          <Form
-            form={form}
-            name="register"
-            onFinish={onFinish}
-            scrollToFirstError
-          >
-            <Form.Item
-              name="username"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input your username!",
-                },
-              ]}
-            >
-              <Input
-                prefix={<UserOutlined />}
-                size="large"
-                placeholder="Username"
-              />
-            </Form.Item>
-            <Form.Item
-              name="email"
-              rules={[
-                {
-                  type: "email",
-                  message: "The input is not valid E-mail!",
-                },
-                {
-                  required: true,
-                  message: "Please input your E-mail!",
-                },
-              ]}
-            >
-              <Input
-                prefix={<MailOutlined />}
-                size="large"
-                placeholder="Email"
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="password"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input your password!",
-                },
-              ]}
-            >
-              <Input.Password
-                prefix={<LockOutlined />}
-                type="password"
-                size="large"
-                placeholder="Password"
-              />
-            </Form.Item>
-
-            <Form.Item>
-              <Button block type="primary" htmlType="submit" size="large">
-                Register
-              </Button>
-              Already a member? <Link to={"/login"}>Log in</Link>
-            </Form.Item>
-          </Form>
         </div>
+        <Form
+          form={form}
+          name="register"
+          onFinish={onFinish}
+          scrollToFirstError
+        >
+          <Form.Item
+            name="username"
+            rules={[
+              {
+                required: true,
+                message: "Please input your username!",
+              },
+            ]}
+          >
+            <Input
+              prefix={<UserOutlined />}
+              size="large"
+              placeholder="Username"
+            />
+          </Form.Item>
+          <Form.Item
+            name="email"
+            rules={[
+              {
+                type: "email",
+                message: "The input is not valid E-mail!",
+              },
+              {
+                required: true,
+                message: "Please input your E-mail!",
+              },
+            ]}
+          >
+            <Input prefix={<MailOutlined />} size="large" placeholder="Email" />
+          </Form.Item>
+
+          <Form.Item
+            name="password"
+            rules={[
+              {
+                required: true,
+                message: "Please input your password!",
+              },
+            ]}
+          >
+            <Input.Password
+              prefix={<LockOutlined />}
+              type="password"
+              size="large"
+              placeholder="Password"
+            />
+          </Form.Item>
+
+          <Form.Item>
+            <Button block type="primary" htmlType="submit" size="large">
+              Register
+            </Button>
+            <div className="text-center mt-[10px]">
+              Already a member? <Link to={"/login"}>Log in</Link>
+            </div>
+          </Form.Item>
+        </Form>
       </Col>
     </Row>
   );
