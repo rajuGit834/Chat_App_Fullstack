@@ -1,11 +1,20 @@
-import express, {Request, Response} from "express";
+import express, { Request, Response } from "express";
+import cors from "cors";
+
+import dotenv from "dotenv";
+
+//import UserModel from "./models/users";
+import authRoutes from "./routes/auth.routes";
 
 const app = express();
 
-app.get("/", (req: Request, res: Response) => {
-    res.send("Welcome");
-})
+dotenv.config();
 
-app.listen(4000, () => {
-    console.log("server is running on port 4000");
+app.use("/api/auth", authRoutes);
+app.use(cors());
+app.use(express.json()); // To parse incoming JSON requests
+
+// Start server
+app.listen(5001, () => {
+    console.log("Server is running on port 5001");
 });
