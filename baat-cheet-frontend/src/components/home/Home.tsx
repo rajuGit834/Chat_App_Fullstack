@@ -2,21 +2,29 @@ import { createElement, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   UploadOutlined,
-  UserOutlined,
   VideoCameraOutlined,
   SendOutlined,
-  FileImageOutlined,
   LogoutOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
+import UploadImage from "./UploadImage";
 import { Layout, Menu, theme, Avatar, Typography, Tooltip } from "antd";
+import Messages from "./Messages";
 
 const { Header, Content, Sider, Footer } = Layout;
 const { Text } = Typography;
+
+interface Message {
+  msgId: number;
+  type: "send" | "receive";
+  message: string;
+}
 
 interface User {
   id: number;
   name: string;
   isActive: boolean;
+  messages: Message[];
 }
 
 const users: User[] = [
@@ -24,31 +32,204 @@ const users: User[] = [
     id: 1,
     name: "raju kumar",
     isActive: true,
+    messages: [
+      {
+        msgId: 1,
+        type: "send",
+        message: "hi",
+      },
+      {
+        msgId: 2,
+        type: "receive",
+        message: "hello",
+      },
+      {
+        msgId: 3,
+        type: "send",
+        message: "how are you?",
+      },
+      {
+        msgId: 4,
+        type: "receive",
+        message: "I am fine.",
+      },
+      {
+        msgId: 5,
+        type: "send",
+        message: "I am Raju",
+      },
+      {
+        msgId: 6,
+        type: "send",
+        message: "I am fine.",
+      },
+      {
+        msgId: 7,
+        type: "send",
+        message:
+          "I am Rajunw dlvnewdv vjovj osvjo njove rnjov erfoi ovbroe  okvbnro obrobvoi nornvboi norkvbor nvorovr nornbor nvornvbojr nvrovbor bnrnbvorn joivbrobn nvronvor nbvkrnor nvkrnbojr nvorjv nvbronbb ",
+      },
+    ],
   },
   {
     id: 2,
     name: "abhishek kumar",
     isActive: false,
+    messages: [
+      {
+        msgId: 1,
+        type: "send",
+        message: "hi",
+      },
+      {
+        msgId: 2,
+        type: "receive",
+        message: "hello",
+      },
+      {
+        msgId: 3,
+        type: "send",
+        message: "how are you?",
+      },
+      {
+        msgId: 4,
+        type: "receive",
+        message: "I am fine.",
+      },
+      {
+        msgId: 5,
+        type: "send",
+        message: "I am Abhishek",
+      },
+    ],
   },
   {
     id: 3,
     name: "kamal kumar",
     isActive: true,
+    messages: [
+      {
+        msgId: 1,
+        type: "send",
+        message: "hi",
+      },
+      {
+        msgId: 2,
+        type: "receive",
+        message: "hello",
+      },
+      {
+        msgId: 3,
+        type: "send",
+        message: "how are you?",
+      },
+      {
+        msgId: 4,
+        type: "receive",
+        message: "I am fine.",
+      },
+      {
+        msgId: 5,
+        type: "send",
+        message: "I am Kamal",
+      },
+    ],
   },
   {
     id: 4,
     name: "anand",
     isActive: false,
+    messages: [
+      {
+        msgId: 1,
+        type: "send",
+        message: "hi",
+      },
+      {
+        msgId: 2,
+        type: "receive",
+        message: "hello",
+      },
+      {
+        msgId: 3,
+        type: "send",
+        message: "how are you?",
+      },
+      {
+        msgId: 4,
+        type: "receive",
+        message: "I am fine.",
+      },
+      {
+        msgId: 5,
+        type: "send",
+        message: "I am Anand",
+      },
+    ],
   },
   {
     id: 5,
     name: "deepak kumar",
     isActive: false,
+    messages: [
+      {
+        msgId: 1,
+        type: "send",
+        message: "hi",
+      },
+      {
+        msgId: 2,
+        type: "receive",
+        message: "hello",
+      },
+      {
+        msgId: 3,
+        type: "send",
+        message: "how are you?",
+      },
+      {
+        msgId: 4,
+        type: "receive",
+        message: "I am fine.",
+      },
+      {
+        msgId: 5,
+        type: "send",
+        message: "I am Deepak",
+      },
+    ],
   },
   {
     id: 6,
     name: "supriya kumari",
     isActive: true,
+    messages: [
+      {
+        msgId: 1,
+        type: "send",
+        message: "hi",
+      },
+      {
+        msgId: 2,
+        type: "receive",
+        message: "hello",
+      },
+      {
+        msgId: 3,
+        type: "send",
+        message: "how are you?",
+      },
+      {
+        msgId: 4,
+        type: "receive",
+        message: "I am fine.",
+      },
+      {
+        msgId: 5,
+        type: "send",
+        message: "I am Supriya",
+      },
+    ],
   },
 ];
 
@@ -87,8 +268,27 @@ const Home: React.FC = () => {
           console.log(collapsed, type);
         }}
         width={"20%"}
+        // className="overflow-y-auto h-full"
       >
-        <div className="demo-logo-vertical" />
+        {/* user profile */}
+        <div className="demo-logo-vertical h-[63px] bg-[#0e2d4b] text-white">
+          <div className="flex gap-5 items-center pl-2 pt-3">
+            <Avatar
+              style={{
+                backgroundColor: "gray",
+                verticalAlign: "middle",
+              }}
+              size="large"
+              gap={20}
+            >
+              <UserOutlined className="text-[20px]" />
+            </Avatar>
+            <Text style={{ color: "white" }} className="truncate">
+              {"Me"}
+            </Text>
+          </div>
+        </div>
+        <hr className="text-gray-600" />
         <Menu
           theme="dark"
           mode="inline"
@@ -152,8 +352,12 @@ const Home: React.FC = () => {
                 {users[selectedUser].name.charAt(0).toUpperCase()}
               </Avatar>
               <div className="flex flex-col justify-center items-start">
-                <Text className="truncate font-bold">{users[selectedUser].name}</Text>
-                <Text>{users[selectedUser].isActive ? "online" : "ofline"}</Text>
+                <Text className="truncate font-bold">
+                  {users[selectedUser].name}
+                </Text>
+                <Text>
+                  {users[selectedUser].isActive ? "online" : "offline"}
+                </Text>
               </div>
             </div>
           </div>
@@ -176,33 +380,28 @@ const Home: React.FC = () => {
               height: "100%",
             }}
           >
-            content
+            <Messages messages={users[selectedUser].messages} />
           </div>
         </Content>
-        <Footer className="fixed bottom-0 w-[100%]">
-          <div className="flex gap-5">
+        <Footer className="w-full bg-white p-4 shadow-md">
+          <div className="flex items-center justify-center gap-2">
             <textarea
               placeholder="message..."
-              className="w-[70%] bg-gray-300 outline-blue-300 pl-5 pt-2 rounded-full"
+              className="w-[80%] bg-gray-300 outline-blue-300 pl-5 pt-2 rounded-full"
               defaultValue=""
             ></textarea>
 
-            {/* <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => console.log(e.target.files)}
-            /> */}
-
             <Tooltip title={"Upload Image"}>
-              <FileImageOutlined
+              {/* <FileImageOutlined
                 style={{ color: "gray" }}
-                className="text-[20px] p-2 pl-4 pr-4 hover:bg-gray-300 rounded-full cursor-pointer text-center"
-              />
+                className="text-[20px] p-4 pl-4 pr-4 hover:bg-gray-300 rounded-full cursor-pointer text-center"
+              /> */}
             </Tooltip>
+              <UploadImage />
             <Tooltip title={"Send"}>
               <SendOutlined
                 style={{ color: "gray" }}
-                className="text-[20px] p-2 pl-4 pr-4 hover:bg-gray-300 rounded-full cursor-pointer text-center"
+                className="text-[20px] p-4 pl-4 pr-4 hover:bg-gray-300 rounded-full cursor-pointer text-center"
               />
             </Tooltip>
           </div>
