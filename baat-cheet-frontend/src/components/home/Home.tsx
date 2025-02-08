@@ -1,306 +1,46 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  // UploadOutlined,
-  // VideoCameraOutlined,
-  SendOutlined,
-  LogoutOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
+import { useDispatch, useSelector } from "react-redux";
+import { setSelectedUser, addMessage } from "../../redux/slices/usersSlice";
+import { RootState } from "../../redux/store";
 import UploadImage from "./UploadImage";
 import { Layout, Menu, theme, Avatar, Typography, Tooltip } from "antd";
 import Messages from "./Messages";
-
+import { SendOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
 const { Header, Content, Sider, Footer } = Layout;
 const { Text } = Typography;
 
-interface Message {
-  msgId: number;
-  type: "send" | "receive";
-  message: string;
-  imagePath: string;
-}
-
-interface User {
-  id: number;
-  name: string;
-  isActive: boolean;
-  messages: Message[];
-}
-
-const initialUser: User[] = [
-  {
-    id: 1,
-    name: "raju kumar",
-    isActive: true,
-    messages: [
-      {
-        msgId: 1,
-        type: "send",
-        message: "hi",
-        imagePath: "",
-      },
-      {
-        msgId: 2,
-        type: "receive",
-        message: "hello",
-        imagePath: "",
-      },
-      {
-        msgId: 3,
-        type: "send",
-        message: "how are you?",
-        imagePath: "",
-      },
-      {
-        msgId: 4,
-        type: "receive",
-        message: "I am fine.",
-        imagePath: "",
-      },
-      {
-        msgId: 5,
-        type: "send",
-        message: "I am Raju",
-        imagePath: "",
-      },
-      {
-        msgId: 6,
-        type: "send",
-        message: "I am fine.",
-        imagePath: "",
-      },
-      {
-        msgId: 7,
-        type: "send",
-        message:
-          "I am Rajunw dlvnewdvvjovjosvjonjovernjoverfoiovbroeokvbnrobrobvonornvboinorkvborvorovrnornbornvornvbojrnvrovborbnrnbvornivbrobnvronvornbvkrnor nvkrnbojr nvorjv nvbronbb ",
-        imagePath: "",
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: "abhishek kumar",
-    isActive: false,
-    messages: [
-      {
-        msgId: 1,
-        type: "send",
-        message: "hi",
-        imagePath: "",
-      },
-      {
-        msgId: 2,
-        type: "receive",
-        message: "hello",
-        imagePath: "",
-      },
-      {
-        msgId: 3,
-        type: "send",
-        message: "how are you?",
-        imagePath: "",
-      },
-      {
-        msgId: 4,
-        type: "receive",
-        message: "I am fine.",
-        imagePath: "",
-      },
-      {
-        msgId: 5,
-        type: "send",
-        message: "I am Abhishek",
-        imagePath: "",
-      },
-    ],
-  },
-  {
-    id: 3,
-    name: "kamal kumar",
-    isActive: true,
-    messages: [
-      {
-        msgId: 1,
-        type: "send",
-        message: "hi",
-        imagePath: "",
-      },
-      {
-        msgId: 2,
-        type: "receive",
-        message: "hello",
-        imagePath: "",
-      },
-      {
-        msgId: 3,
-        type: "send",
-        message: "how are you?",
-        imagePath: "",
-      },
-      {
-        msgId: 4,
-        type: "receive",
-        message: "I am fine.",
-        imagePath: "",
-      },
-      {
-        msgId: 5,
-        type: "send",
-        message: "I am Kamal",
-        imagePath: "",
-      },
-    ],
-  },
-  {
-    id: 4,
-    name: "anand",
-    isActive: false,
-    messages: [
-      {
-        msgId: 1,
-        type: "send",
-        message: "hi",
-        imagePath: "",
-      },
-      {
-        msgId: 2,
-        type: "receive",
-        message: "hello",
-        imagePath: "",
-      },
-      {
-        msgId: 3,
-        type: "send",
-        message: "how are you?",
-        imagePath: "",
-      },
-      {
-        msgId: 4,
-        type: "receive",
-        message: "I am fine.",
-        imagePath: "",
-      },
-      {
-        msgId: 5,
-        type: "send",
-        message: "I am Anand",
-        imagePath: "",
-      },
-    ],
-  },
-  {
-    id: 5,
-    name: "deepak kumar",
-    isActive: false,
-    messages: [
-      {
-        msgId: 1,
-        type: "send",
-        message: "hi",
-        imagePath: "",
-      },
-      {
-        msgId: 2,
-        type: "receive",
-        message: "hello",
-        imagePath: "",
-      },
-      {
-        msgId: 3,
-        type: "send",
-        message: "how are you?",
-        imagePath: "",
-      },
-      {
-        msgId: 4,
-        type: "receive",
-        message: "I am fine.",
-        imagePath: "",
-      },
-      {
-        msgId: 5,
-        type: "send",
-        message: "I am Deepak",
-        imagePath: "",
-      },
-    ],
-  },
-  {
-    id: 6,
-    name: "supriya kumari",
-    isActive: true,
-    messages: [
-      {
-        msgId: 1,
-        type: "send",
-        message: "hi",
-        imagePath: "",
-      },
-      {
-        msgId: 2,
-        type: "receive",
-        message: "hello",
-        imagePath: "",
-      },
-      {
-        msgId: 3,
-        type: "send",
-        message: "how are you?",
-        imagePath: "",
-      },
-      {
-        msgId: 4,
-        type: "receive",
-        message: "I am fine.",
-        imagePath: "",
-      },
-      {
-        msgId: 5,
-        type: "send",
-        message: "I am Supriya",
-        imagePath: "",
-      },
-    ],
-  },
-];
-
-// const items = [
-//   UserOutlined,
-//   VideoCameraOutlined,
-//   UploadOutlined,
-//   UserOutlined,
-// ].map((icon, index) => ({
-//   key: String(index + 1),
-//   icon: createElement(icon),
-//   label: `nav ${index + 1}`,
-// }));
-
 const Home: React.FC = () => {
-  const [selectedUser, setSelectedUser] = useState(1);
-  const [userMessage, setUserMessage] = useState("");
-  const [users, setUsers] = useState<User[]>(initialUser);
   const [image, setImage] = useState<string | null>(null);
+  const [userMessage, setUserMessage] = useState("");
+
+  const dispatch = useDispatch();
+  const users = useSelector((state: RootState) => state.users.users);
+  const selectedUser = useSelector(
+    (state: RootState) => state.users.selectedUser
+  );
 
   const handleSubmitUserMessage = (): void => {
     if (!userMessage.trim() && !image) return;
 
-    setUsers((prevUsers) =>
-      prevUsers.map((user) => {
-        if (user.id === selectedUser) {
-          const newMessage: Message = {
-            msgId:
-              user.messages.length > 0
-                ? user.messages[user.messages.length - 1].msgId + 1
-                : 1,
-            type: "send",
-            message: userMessage,
-            imagePath: image ? image : "",
-          };
-          return { ...user, messages: [...user.messages, newMessage] };
-        }
-        return user;
+    const user = users.find((user) => user.id === selectedUser);
+    let userMsgId: number = 1;
+
+    if (user) {
+      const msgArray = user.messages;
+      userMsgId =
+        msgArray.length > 0 ? msgArray[msgArray.length - 1].msgId + 1 : 1;
+    }
+
+    dispatch(
+      addMessage({
+        userId: selectedUser,
+        message: {
+          msgId: userMsgId,
+          type: "send",
+          message: userMessage,
+          imagePath: image || "",
+        },
       })
     );
 
@@ -355,9 +95,8 @@ const Home: React.FC = () => {
           mode="inline"
           defaultSelectedKeys={["1"]}
           onSelect={(e) => {
-            setSelectedUser(parseInt(e.selectedKeys[0]));
+            dispatch(setSelectedUser(parseInt(e.selectedKeys[0])));
           }}
-          // items={items}
         >
           {users.map((user): any => (
             <Menu.Item
@@ -469,12 +208,6 @@ const Home: React.FC = () => {
                 }
               }}
             ></textarea>
-
-            {/* <FileImageOutlined
-                style={{ color: "gray" }}
-                className="text-[20px] p-4 pl-4 pr-4 hover:bg-gray-300 rounded-full cursor-pointer text-center"
-              /> */}
-
             <UploadImage image={image} setImage={setImage} />
 
             <Tooltip title={"Send"}>

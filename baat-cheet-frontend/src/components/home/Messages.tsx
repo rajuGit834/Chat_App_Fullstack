@@ -10,12 +10,13 @@ interface MessagesProps {
 }
 
 const Messages: React.FC<MessagesProps> = ({ messages }) => {
+  console.log(messages);
   return (
     <div className="flex flex-col gap-3 w-full overflow-y-auto h-[100%]">
       {messages.map((msg) => (
         <div
           key={msg.msgId}
-          className={`flex justify-between min-w-[15%] max-w-[45%] break-all relative p-3 rounded-lg ${
+          className={`flex justify-between min-w-[100px] max-w-[45%] break-all relative p-3 rounded-lg ${
             msg.type === "send" ? "ml-auto bg-blue-300" : "mr-auto bg-gray-200"
           }`}
         >
@@ -29,7 +30,7 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
             )}
             <p className="pl-2">{msg.message}</p>
           </div>
-          <p className="text-[11px] text-gray-500 absolute bottom-0.5 right-5">
+          <p className="text-[11px] text-gray-500 absolute bottom-0 right-5">
             10:01
           </p>
         </div>
