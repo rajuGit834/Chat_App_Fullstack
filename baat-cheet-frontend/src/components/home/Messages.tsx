@@ -2,6 +2,7 @@ interface Message {
   msgId: number;
   type: "send" | "receive";
   message: string;
+  imagePath: string;
 }
 
 interface MessagesProps {
@@ -14,11 +15,20 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
       {messages.map((msg) => (
         <div
           key={msg.msgId}
-          className={`flex justify-between w-[45%] relative p-3 rounded-lg ${
+          className={`flex justify-between min-w-[15%] max-w-[45%] break-all relative p-3 rounded-lg ${
             msg.type === "send" ? "ml-auto bg-blue-300" : "mr-auto bg-gray-200"
           }`}
         >
-          <p className="pl-2">{msg.message}</p>
+          <div className="flex flex-col gap-2">
+            {msg.imagePath && (
+              <img
+                className="h-[200px] w-[200px] bg-cover"
+                src={msg.imagePath}
+                alt=""
+              />
+            )}
+            <p className="pl-2">{msg.message}</p>
+          </div>
           <p className="text-[11px] text-gray-500 absolute bottom-0.5 right-5">
             10:01
           </p>

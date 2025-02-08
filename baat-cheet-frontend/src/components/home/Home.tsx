@@ -1,8 +1,8 @@
-import { createElement, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  UploadOutlined,
-  VideoCameraOutlined,
+  // UploadOutlined,
+  // VideoCameraOutlined,
   SendOutlined,
   LogoutOutlined,
   UserOutlined,
@@ -18,6 +18,7 @@ interface Message {
   msgId: number;
   type: "send" | "receive";
   message: string;
+  imagePath: string;
 }
 
 interface User {
@@ -27,7 +28,7 @@ interface User {
   messages: Message[];
 }
 
-const users: User[] = [
+const initialUser: User[] = [
   {
     id: 1,
     name: "raju kumar",
@@ -37,37 +38,44 @@ const users: User[] = [
         msgId: 1,
         type: "send",
         message: "hi",
+        imagePath: "",
       },
       {
         msgId: 2,
         type: "receive",
         message: "hello",
+        imagePath: "",
       },
       {
         msgId: 3,
         type: "send",
         message: "how are you?",
+        imagePath: "",
       },
       {
         msgId: 4,
         type: "receive",
         message: "I am fine.",
+        imagePath: "",
       },
       {
         msgId: 5,
         type: "send",
         message: "I am Raju",
+        imagePath: "",
       },
       {
         msgId: 6,
         type: "send",
         message: "I am fine.",
+        imagePath: "",
       },
       {
         msgId: 7,
         type: "send",
         message:
-          "I am Rajunw dlvnewdv vjovj osvjo njove rnjov erfoi ovbroe  okvbnro obrobvoi nornvboi norkvbor nvorovr nornbor nvornvbojr nvrovbor bnrnbvorn joivbrobn nvronvor nbvkrnor nvkrnbojr nvorjv nvbronbb ",
+          "I am Rajunw dlvnewdvvjovjosvjonjovernjoverfoiovbroeokvbnrobrobvonornvboinorkvborvorovrnornbornvornvbojrnvrovborbnrnbvornivbrobnvronvornbvkrnor nvkrnbojr nvorjv nvbronbb ",
+        imagePath: "",
       },
     ],
   },
@@ -80,26 +88,31 @@ const users: User[] = [
         msgId: 1,
         type: "send",
         message: "hi",
+        imagePath: "",
       },
       {
         msgId: 2,
         type: "receive",
         message: "hello",
+        imagePath: "",
       },
       {
         msgId: 3,
         type: "send",
         message: "how are you?",
+        imagePath: "",
       },
       {
         msgId: 4,
         type: "receive",
         message: "I am fine.",
+        imagePath: "",
       },
       {
         msgId: 5,
         type: "send",
         message: "I am Abhishek",
+        imagePath: "",
       },
     ],
   },
@@ -112,26 +125,31 @@ const users: User[] = [
         msgId: 1,
         type: "send",
         message: "hi",
+        imagePath: "",
       },
       {
         msgId: 2,
         type: "receive",
         message: "hello",
+        imagePath: "",
       },
       {
         msgId: 3,
         type: "send",
         message: "how are you?",
+        imagePath: "",
       },
       {
         msgId: 4,
         type: "receive",
         message: "I am fine.",
+        imagePath: "",
       },
       {
         msgId: 5,
         type: "send",
         message: "I am Kamal",
+        imagePath: "",
       },
     ],
   },
@@ -144,26 +162,31 @@ const users: User[] = [
         msgId: 1,
         type: "send",
         message: "hi",
+        imagePath: "",
       },
       {
         msgId: 2,
         type: "receive",
         message: "hello",
+        imagePath: "",
       },
       {
         msgId: 3,
         type: "send",
         message: "how are you?",
+        imagePath: "",
       },
       {
         msgId: 4,
         type: "receive",
         message: "I am fine.",
+        imagePath: "",
       },
       {
         msgId: 5,
         type: "send",
         message: "I am Anand",
+        imagePath: "",
       },
     ],
   },
@@ -176,26 +199,31 @@ const users: User[] = [
         msgId: 1,
         type: "send",
         message: "hi",
+        imagePath: "",
       },
       {
         msgId: 2,
         type: "receive",
         message: "hello",
+        imagePath: "",
       },
       {
         msgId: 3,
         type: "send",
         message: "how are you?",
+        imagePath: "",
       },
       {
         msgId: 4,
         type: "receive",
         message: "I am fine.",
+        imagePath: "",
       },
       {
         msgId: 5,
         type: "send",
         message: "I am Deepak",
+        imagePath: "",
       },
     ],
   },
@@ -208,44 +236,77 @@ const users: User[] = [
         msgId: 1,
         type: "send",
         message: "hi",
+        imagePath: "",
       },
       {
         msgId: 2,
         type: "receive",
         message: "hello",
+        imagePath: "",
       },
       {
         msgId: 3,
         type: "send",
         message: "how are you?",
+        imagePath: "",
       },
       {
         msgId: 4,
         type: "receive",
         message: "I am fine.",
+        imagePath: "",
       },
       {
         msgId: 5,
         type: "send",
         message: "I am Supriya",
+        imagePath: "",
       },
     ],
   },
 ];
 
-const items = [
-  UserOutlined,
-  VideoCameraOutlined,
-  UploadOutlined,
-  UserOutlined,
-].map((icon, index) => ({
-  key: String(index + 1),
-  icon: createElement(icon),
-  label: `nav ${index + 1}`,
-}));
+// const items = [
+//   UserOutlined,
+//   VideoCameraOutlined,
+//   UploadOutlined,
+//   UserOutlined,
+// ].map((icon, index) => ({
+//   key: String(index + 1),
+//   icon: createElement(icon),
+//   label: `nav ${index + 1}`,
+// }));
 
 const Home: React.FC = () => {
-  const [selectedUser, setSelectedUser] = useState(0);
+  const [selectedUser, setSelectedUser] = useState(1);
+  const [userMessage, setUserMessage] = useState("");
+  const [users, setUsers] = useState<User[]>(initialUser);
+  const [image, setImage] = useState<string | null>(null);
+
+  const handleSubmitUserMessage = (): void => {
+    if (!userMessage.trim() && !image) return;
+
+    setUsers((prevUsers) =>
+      prevUsers.map((user) => {
+        if (user.id === selectedUser) {
+          const newMessage: Message = {
+            msgId:
+              user.messages.length > 0
+                ? user.messages[user.messages.length - 1].msgId + 1
+                : 1,
+            type: "send",
+            message: userMessage,
+            imagePath: image ? image : "",
+          };
+          return { ...user, messages: [...user.messages, newMessage] };
+        }
+        return user;
+      })
+    );
+
+    setUserMessage("");
+    setImage(null);
+  };
 
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -293,7 +354,9 @@ const Home: React.FC = () => {
           theme="dark"
           mode="inline"
           defaultSelectedKeys={["1"]}
-          onSelect={(e) => setSelectedUser(parseInt(e.key) - 1)}
+          onSelect={(e) => {
+            setSelectedUser(parseInt(e.selectedKeys[0]));
+          }}
           // items={items}
         >
           {users.map((user): any => (
@@ -349,14 +412,19 @@ const Home: React.FC = () => {
                 size="large"
                 gap={20}
               >
-                {users[selectedUser].name.charAt(0).toUpperCase()}
+                {users
+                  .find((user) => user.id === selectedUser)
+                  ?.name.charAt(0)
+                  .toUpperCase()}
               </Avatar>
               <div className="flex flex-col justify-center items-start">
                 <Text className="truncate font-bold">
-                  {users[selectedUser].name}
+                  {users.find((user) => user.id === selectedUser)?.name}
                 </Text>
                 <Text>
-                  {users[selectedUser].isActive ? "online" : "offline"}
+                  {users.find((user) => user.id === selectedUser)?.isActive
+                    ? "online"
+                    : "offline"}
                 </Text>
               </div>
             </div>
@@ -380,28 +448,40 @@ const Home: React.FC = () => {
               height: "100%",
             }}
           >
-            <Messages messages={users[selectedUser].messages} />
+            <Messages
+              messages={
+                users.find((user) => user.id === selectedUser)?.messages || []
+              }
+            />
           </div>
         </Content>
         <Footer className="w-full bg-white p-4 shadow-md">
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-2 relative">
             <textarea
               placeholder="message..."
               className="w-[80%] bg-gray-300 outline-blue-300 pl-5 pt-2 rounded-full"
-              defaultValue=""
+              value={userMessage}
+              onChange={(e) => setUserMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmitUserMessage();
+                }
+              }}
             ></textarea>
 
-            <Tooltip title={"Upload Image"}>
-              {/* <FileImageOutlined
+            {/* <FileImageOutlined
                 style={{ color: "gray" }}
                 className="text-[20px] p-4 pl-4 pr-4 hover:bg-gray-300 rounded-full cursor-pointer text-center"
               /> */}
-            </Tooltip>
-              <UploadImage />
+
+            <UploadImage image={image} setImage={setImage} />
+
             <Tooltip title={"Send"}>
               <SendOutlined
                 style={{ color: "gray" }}
                 className="text-[20px] p-4 pl-4 pr-4 hover:bg-gray-300 rounded-full cursor-pointer text-center"
+                onClick={handleSubmitUserMessage}
               />
             </Tooltip>
           </div>
