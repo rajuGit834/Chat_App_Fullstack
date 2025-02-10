@@ -85,7 +85,7 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
               <img
                 className="h-[200px] w-[200px] bg-cover"
                 src={msg.imagePath}
-                alt=""
+                alt="msgImage"
               />
             )}
             {/* <input type="text" className="outlined-bone"  value={msg.message}/> */}

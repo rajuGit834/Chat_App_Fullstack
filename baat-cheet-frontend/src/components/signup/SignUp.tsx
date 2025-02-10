@@ -2,6 +2,7 @@ import registerImage from "../../assets/register.jpg";
 import { Button, Col, Form, Input, Row, Typography } from "antd";
 import { LockOutlined, UserOutlined, MailOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
 
 const { Title } = Typography;
 
@@ -9,6 +10,10 @@ const SignUp: React.FC = () => {
   const [form] = Form.useForm();
 
   const onFinish = (values: any) => {
+    toast.success("Registration Successful!", {
+      position: "top-center",
+      autoClose: 3000,
+    });
     console.log("Received values of form: ", values);
   };
 
@@ -45,18 +50,33 @@ const SignUp: React.FC = () => {
           scrollToFirstError
         >
           <Form.Item
-            name="username"
+            name="firstname"
             rules={[
               {
                 required: true,
-                message: "Please input your username!",
+                message: "Please input your firstname!",
               },
             ]}
           >
             <Input
               prefix={<UserOutlined />}
               size="large"
-              placeholder="Username"
+              placeholder="First Name"
+            />
+          </Form.Item>
+          <Form.Item
+            name="lastname"
+            rules={[
+              {
+                required: true,
+                message: "Please input your lastname!",
+              },
+            ]}
+          >
+            <Input
+              prefix={<UserOutlined />}
+              size="large"
+              placeholder="Last Name"
             />
           </Form.Item>
           <Form.Item
@@ -102,6 +122,7 @@ const SignUp: React.FC = () => {
           </Form.Item>
         </Form>
       </Col>
+      <ToastContainer />
     </Row>
   );
 };
