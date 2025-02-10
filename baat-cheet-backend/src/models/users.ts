@@ -1,20 +1,31 @@
-// import mongoose, { Document } from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 
-// // Define the IUser interface
-// interface IUser extends Document {
-//   name: string;
-//   email: string;
-//   password: string; // Assuming you're storing the password in plain text, ideally use encryption
-// }
+interface IUser extends Document {
+  email: string;
+  fullName: string;
+  password: string;
+}
 
-// // Define the user schema
-// const UserSchema = new mongoose.Schema<IUser>({
-//   name: { type: String, required: true },
-//   email: { type: String, required: true },
-//   password: { type: String, required: true },
-// });
+const userSchema = new Schema<IUser>(
+  {
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    fullName: {
+      type: String,
+      required: true,
+    },
+    password: {
+      type: String,
+      required: true, // No hashing, just store plain-text (Not recommended for production)
+      minlength: 6,
+    },
+  },
+  { timestamps: true }
+);
 
-// // Define the model
-// const UserModel = mongoose.model<IUser>("User", UserSchema, "cluster-baatcheet");
+const User = mongoose.model<IUser>("User", userSchema);
 
-// export default UserModel;
+export default User;
