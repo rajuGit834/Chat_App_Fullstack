@@ -1,79 +1,57 @@
-import { createElement, useState } from "react";
-import { Link } from "react-router-dom";
-import {
-  UploadOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
-  SendOutlined,
-  FileImageOutlined,
-  LogoutOutlined,
-} from "@ant-design/icons";
-import { Layout, Menu, theme, Avatar, Typography, Tooltip } from "antd";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setSelectedUser, addMessage } from "../../redux/slices/usersSlice";
+import { RootState } from "../../redux/store";
 
+import UploadImage from "./UploadImage";
+import Messages from "./Messages";
+import Dropdowns from "./Dropdowns";
+
+import { Layout, Menu, theme, Avatar, Typography, Tooltip } from "antd";
+import { SendOutlined, UserOutlined } from "@ant-design/icons";
 const { Header, Content, Sider, Footer } = Layout;
 const { Text } = Typography;
 
-interface User {
-  id: number;
-  name: string;
-  isActive: boolean;
-}
-
-const users: User[] = [
-  {
-    id: 1,
-    name: "raju kumar",
-    isActive: true,
-  },
-  {
-    id: 2,
-    name: "abhishek kumar",
-    isActive: false,
-  },
-  {
-    id: 3,
-    name: "kamal kumar",
-    isActive: true,
-  },
-  {
-    id: 4,
-    name: "anand",
-    isActive: false,
-  },
-  {
-    id: 5,
-    name: "deepak kumar",
-    isActive: false,
-  },
-  {
-    id: 6,
-    name: "supriya kumari",
-    isActive: true,
-  },
-];
-
-const items = [
-  UserOutlined,
-  VideoCameraOutlined,
-  UploadOutlined,
-  UserOutlined,
-].map((icon, index) => ({
-  key: String(index + 1),
-  icon: createElement(icon),
-  label: `nav ${index + 1}`,
-}));
-
 const Home: React.FC = () => {
-  const [selectedUser, setSelectedUser] = useState(0);
+  const [image, setImage] = useState<string | null>(null);
+  const [userMessage, setUserMessage] = useState("");
+  const dispatch = useDispatch();
+  const users = useSelector((state: RootState) => state.users.users);
+  const selectedUser = useSelector(
+    (state: RootState) => state.users.selectedUser
+  );
+
+  const handleSubmitUserMessage = (): void => {
+    if (!userMessage.trim() && !image) return;
+
+    const user = users.find((user) => user.id === selectedUser);
+    let userMsgId: number = 1;
+
+    if (user) {
+      const msgArray = user.messages;
+      userMsgId =
+        msgArray.length > 0 ? msgArray[msgArray.length - 1].msgId + 1 : 1;
+    }
+
+    dispatch(
+      addMessage({
+        userId: selectedUser,
+        message: {
+          msgId: userMsgId,
+          type: "send",
+          message: userMessage,
+          imagePath: image || "",
+        },
+      })
+    );
+
+    setUserMessage("");
+    setImage(null);
+  };
 
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { colorBgContainer },
   } = theme.useToken();
-
-  const getColor = (): string => {
-    const randomNumber: number = Math.floor(Math.random() * 1000000);
-    return `#${randomNumber.toString(16).padStart(6, "0")}`;
-  };
 
   return (
     <Layout style={{ height: "100vh" }}>
@@ -87,32 +65,49 @@ const Home: React.FC = () => {
           console.log(collapsed, type);
         }}
         width={"20%"}
+        // className="overflow-y-auto h-full"
       >
-        <div className="demo-logo-vertical" />
+        {/* user profile */}
+        <div className="demo-logo-vertical h-[63px] bg-[#0e2d4b] text-white">
+          <div className="flex gap-2 items-center pl-2 pt-3">
+            <Avatar
+              style={{
+                backgroundColor: "gray",
+                verticalAlign: "middle",
+              }}
+              // size="large"
+            >
+              <UserOutlined className="text-[20px]" />
+            </Avatar>
+            <Text style={{ color: "white" }} className="truncate">
+              Me
+            </Text>
+          </div>
+        </div>
+        <hr className="text-gray-600" />
         <Menu
           theme="dark"
           mode="inline"
           defaultSelectedKeys={["1"]}
-          onSelect={(e) => setSelectedUser(parseInt(e.key) - 1)}
-          // items={items}
+          onSelect={(e) => {
+            dispatch(setSelectedUser(parseInt(e.selectedKeys[0])));
+          }}
         >
           {users.map((user): any => (
             <Menu.Item
               key={user.id}
               style={{ height: "70px", position: "relative" }}
             >
-              <div className="flex gap-5 items-center">
+              <div className="flex gap-2 items-center">
                 <Avatar
-                  style={{
-                    backgroundColor: getColor(),
-                    verticalAlign: "middle",
-                  }}
+                  className="block sm:hidden sm:w-full"
                   size="large"
-                  gap={20}
+                  src={user.profilePic || <UserOutlined style={{color:"gray", fontSize:"20px", background: "white", padding: "9px"}} />}
+                />
+                <Text
+                  style={{ color: "white" }}
+                  className="hidden sm:block truncate"
                 >
-                  {user.name.charAt(0).toUpperCase()}
-                </Avatar>
-                <Text style={{ color: "white" }} className="truncate">
                   {user.name}
                 </Text>
               </div>
@@ -142,67 +137,68 @@ const Home: React.FC = () => {
           <div className="relative w-[50%]">
             <div className="flex gap-5 items-center">
               <Avatar
-                style={{
-                  backgroundColor: getColor(),
-                  verticalAlign: "middle",
-                }}
                 size="large"
-                gap={20}
-              >
-                {users[selectedUser].name.charAt(0).toUpperCase()}
-              </Avatar>
+                src={
+                  users.find((user) => user.id === selectedUser)
+                    ?.profilePic || <UserOutlined style={{color:"gray", fontSize:"20px"}}/>
+                }
+              />
+
               <div className="flex flex-col justify-center items-start">
-                <Text className="truncate font-bold">{users[selectedUser].name}</Text>
-                <Text>{users[selectedUser].isActive ? "online" : "ofline"}</Text>
+                <Text className="truncate font-bold">
+                  {users.find((user) => user.id === selectedUser)?.name}
+                </Text>
+                <Text>
+                  {users.find((user) => user.id === selectedUser)?.isActive
+                    ? "online"
+                    : "offline"}
+                </Text>
               </div>
             </div>
           </div>
-          <Link to="/login">
-            <Tooltip
-              title="logout"
-              className="float-right text-[22px] p-2 hover:bg-gray-400/50 rounded-full cursor-pointer"
-            >
-              <LogoutOutlined />
-            </Tooltip>
-          </Link>
+          <Tooltip
+            title="logout"
+            className="float-right text-[22px] p-2 hover:bg-gray-400/50 rounded-full cursor-pointer"
+          >
+            <Dropdowns />
+          </Tooltip>
         </Header>
         <Content style={{ margin: "24px 16px 0" }}>
           <div
             style={{
               padding: 24,
               minHeight: 360,
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
               height: "100%",
             }}
           >
-            content
+            <Messages
+              messages={
+                users.find((user) => user.id === selectedUser)?.messages || []
+              }
+            />
           </div>
         </Content>
-        <Footer className="fixed bottom-0 w-[100%]">
-          <div className="flex gap-5">
+        <Footer className="w-full bg-white p-4 shadow-md">
+          <div className="flex items-center justify-center gap-2 relative">
             <textarea
               placeholder="message..."
-              className="w-[70%] bg-gray-300 outline-blue-300 pl-5 pt-2 rounded-full"
-              defaultValue=""
+              className="w-[80%] sm:w-full bg-gray-300 outline-blue-300 pl-5 pt-2 rounded-full"
+              value={userMessage}
+              onChange={(e) => setUserMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmitUserMessage();
+                }
+              }}
             ></textarea>
+            <UploadImage image={image} setImage={setImage} />
 
-            {/* <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => console.log(e.target.files)}
-            /> */}
-
-            <Tooltip title={"Upload Image"}>
-              <FileImageOutlined
-                style={{ color: "gray" }}
-                className="text-[20px] p-2 pl-4 pr-4 hover:bg-gray-300 rounded-full cursor-pointer text-center"
-              />
-            </Tooltip>
             <Tooltip title={"Send"}>
               <SendOutlined
                 style={{ color: "gray" }}
-                className="text-[20px] p-2 pl-4 pr-4 hover:bg-gray-300 rounded-full cursor-pointer text-center"
+                className="text-[20px] p-4 pl-4 pr-4 hover:bg-gray-300 rounded-full cursor-pointer text-center"
+                onClick={handleSubmitUserMessage}
               />
             </Tooltip>
           </div>
