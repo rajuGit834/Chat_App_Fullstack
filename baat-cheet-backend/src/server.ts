@@ -2,6 +2,7 @@ import express from "express";
 import { connectDB } from "./lib/db";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes"; // Import routes
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -9,6 +10,7 @@ const app = express();
 
 // ✅ Middleware
 app.use(express.json()); // Parse JSON body
+app.use(cookieParser());
 
 // ✅ Routes
 app.use("/api/auth", authRoutes);

@@ -1,18 +1,20 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
+import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 interface AuthRequest extends Request {
   user?: any;
 }
 
-export const authenticateJWT: RequestHandler = (req: AuthRequest, res: Response, next: NextFunction): void => {
-  console.log("Cookies received:", req.cookies); // Debugging
+export const authenticateJWT = (req: AuthRequest, res: Response, next: NextFunction): void => {
+  console.log("Cookies received:", req.cookies);
 
-  // ✅ Ensure we read the correct key: "jwt"
   const token = req.cookies?.jwt;
 
   if (!token) {
-    console.log("❌ No token found in cookies");
+    console.log("No token found in cookies");
     res.status(401).json({ error: "Unauthorized: No token provided" });
     return;
   }
@@ -23,12 +25,11 @@ export const authenticateJWT: RequestHandler = (req: AuthRequest, res: Response,
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // ✅ Attach decoded user info to req
+    req.user = decoded;
 
-    console.log("✅ Token verified, user:", req.user);
     next();
   } catch (error) {
-    console.log("❌ Invalid token:", (error as Error).message);
+    console.log("Invalid token:", (error as Error).message);
     res.status(403).json({ error: "Forbidden: Invalid token" });
   }
 };
