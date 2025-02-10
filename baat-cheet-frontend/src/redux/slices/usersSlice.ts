@@ -13,6 +13,7 @@ interface User {
   isActive: boolean;
   messages: Message[];
 }
+
 const initialUser: User[] = [
   {
     id: 1,
@@ -268,6 +269,17 @@ const userSlice = createSlice({
     setSelectedUser: (state, action: PayloadAction<number>) => {
       state.selectedUser = action.payload;
     },
+    changeName: (
+      state,
+      action: PayloadAction<{ userId: number; userName: string }>
+    ) => {
+      const user = state.users.find(
+        (user) => user.id === action.payload.userId
+      );
+      if (user) {
+        user.name = action.payload.userName;
+      }
+    },
     addMessage: (
       state,
       action: PayloadAction<{ userId: number; message: Message }>
@@ -282,5 +294,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { setSelectedUser, addMessage } = userSlice.actions;
+export const { setSelectedUser, addMessage, changeName } = userSlice.actions;
 export default userSlice.reducer;

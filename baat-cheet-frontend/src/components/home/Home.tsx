@@ -1,19 +1,20 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelectedUser, addMessage } from "../../redux/slices/usersSlice";
 import { RootState } from "../../redux/store";
+
 import UploadImage from "./UploadImage";
-import { Layout, Menu, theme, Avatar, Typography, Tooltip } from "antd";
 import Messages from "./Messages";
-import { SendOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import Dropdowns from "./Dropdowns";
+
+import { Layout, Menu, theme, Avatar, Typography, Tooltip } from "antd";
+import { SendOutlined, UserOutlined } from "@ant-design/icons";
 const { Header, Content, Sider, Footer } = Layout;
 const { Text } = Typography;
 
 const Home: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
   const [userMessage, setUserMessage] = useState("");
-
   const dispatch = useDispatch();
   const users = useSelector((state: RootState) => state.users.users);
   const selectedUser = useSelector(
@@ -73,19 +74,18 @@ const Home: React.FC = () => {
       >
         {/* user profile */}
         <div className="demo-logo-vertical h-[63px] bg-[#0e2d4b] text-white">
-          <div className="flex gap-5 items-center pl-2 pt-3">
+          <div className="flex gap-2 items-center pl-2 pt-3">
             <Avatar
               style={{
                 backgroundColor: "gray",
                 verticalAlign: "middle",
               }}
-              size="large"
-              gap={20}
+              // size="large"
             >
               <UserOutlined className="text-[20px]" />
             </Avatar>
             <Text style={{ color: "white" }} className="truncate">
-              {"Me"}
+              Me
             </Text>
           </div>
         </div>
@@ -103,18 +103,19 @@ const Home: React.FC = () => {
               key={user.id}
               style={{ height: "70px", position: "relative" }}
             >
-              <div className="flex gap-5 items-center">
+              <div className="flex gap-2 items-center">
                 <Avatar
+                  className="block sm:hidden sm:w-full" 
                   style={{
                     backgroundColor: getColor(),
                     verticalAlign: "middle",
                   }}
                   size="large"
-                  gap={20}
                 >
                   {user.name.charAt(0).toUpperCase()}
                 </Avatar>
-                <Text style={{ color: "white" }} className="truncate">
+
+                <Text style={{color: "white"}} className="hidden sm:block truncate">
                   {user.name}
                 </Text>
               </div>
@@ -168,22 +169,18 @@ const Home: React.FC = () => {
               </div>
             </div>
           </div>
-          <Link to="/login">
-            <Tooltip
-              title="logout"
-              className="float-right text-[22px] p-2 hover:bg-gray-400/50 rounded-full cursor-pointer"
-            >
-              <LogoutOutlined />
-            </Tooltip>
-          </Link>
+          <Tooltip
+            title="logout"
+            className="float-right text-[22px] p-2 hover:bg-gray-400/50 rounded-full cursor-pointer"
+          >
+            <Dropdowns />
+          </Tooltip>
         </Header>
         <Content style={{ margin: "24px 16px 0" }}>
           <div
             style={{
               padding: 24,
               minHeight: 360,
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
               height: "100%",
             }}
           >
@@ -198,7 +195,7 @@ const Home: React.FC = () => {
           <div className="flex items-center justify-center gap-2 relative">
             <textarea
               placeholder="message..."
-              className="w-[80%] bg-gray-300 outline-blue-300 pl-5 pt-2 rounded-full"
+              className="w-[80%] sm:w-full bg-gray-300 outline-blue-300 pl-5 pt-2 rounded-full"
               value={userMessage}
               onChange={(e) => setUserMessage(e.target.value)}
               onKeyDown={(e) => {
