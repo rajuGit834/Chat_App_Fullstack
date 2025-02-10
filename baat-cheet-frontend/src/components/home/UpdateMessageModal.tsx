@@ -11,7 +11,11 @@ interface Message {
   imagePath: string;
 }
 
-const updateMessageModal: React.FC<{ message: Message }> = ({ message }) => {
+interface UpdateMessageProps {
+  message: Message;
+}
+
+const updateMessageModal: React.FC<UpdateMessageProps> = ({ message }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inputValue, setInputValue] = useState(message.message);
   const dispatch = useDispatch();

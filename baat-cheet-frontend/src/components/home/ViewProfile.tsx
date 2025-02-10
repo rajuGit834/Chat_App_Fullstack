@@ -25,7 +25,7 @@ const ViewProfile: React.FC = () => {
   const user = users.find((user) => user.id === selectedUser);
   const [contactName, setContactName] = useState<string>(user?.name || "");
 
-  const handleSaveChnage = (): void => {
+  const handleUpdateName = (): void => {
     dispatch(updateName({ userId: selectedUser, userName: contactName }));
     setEditName(!editName);
   };
@@ -113,7 +113,7 @@ const ViewProfile: React.FC = () => {
                   <CheckOutlined
                     className="p-3 hover:bg-gray-200 rounded-full cursor-pointer"
                     style={{ color: "green" }}
-                    onClick={handleSaveChnage}
+                    onClick={handleUpdateName}
                   />
                 </>
               )}

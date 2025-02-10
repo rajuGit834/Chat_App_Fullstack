@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import cat1 from "../../assets/cat1.webp"
-import cat2 from "../../assets/cat2.webp"
-import cat3 from "../../assets/cat3.webp"
-import cat4 from "../../assets/cat4.webp"
+import cat1 from "../../assets/cat1.webp";
+import cat2 from "../../assets/cat2.webp";
+import cat3 from "../../assets/cat3.webp";
+import cat4 from "../../assets/cat4.webp";
 
 interface Message {
   msgId: number;
@@ -315,10 +315,10 @@ const userSlice = createSlice({
       );
 
       if (user) {
-        user.messages = user.messages.map((msg) =>
-          msg.msgId === action.payload.messageId
-            ? { ...msg, message: action.payload.message }
-            : msg
+        user.messages = user.messages.map((message) =>
+          message.msgId === action.payload.messageId
+            ? { ...message, message: action.payload.message }
+            : message
         );
       }
     },
