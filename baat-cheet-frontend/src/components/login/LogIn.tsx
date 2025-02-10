@@ -6,7 +6,24 @@ import { Link } from "react-router-dom";
 const { Title } = Typography;
 
 const LogIn: React.FC = () => {
+  const handleLogin = (values: any): void => {
+    fetch("http://localhost:5001", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(values),
+    })
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   const onFinish = (values: any) => {
+    handleLogin(values);
     console.log("Received values of form: ", values);
   };
 

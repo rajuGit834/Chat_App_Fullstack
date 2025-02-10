@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Button, Modal, Tooltip } from "antd";
-import register from "../../assets/register.jpg";
+import { Avatar, Button, Modal, Tooltip } from "antd";
+import { UserOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { changeName } from "../../redux/slices/usersSlice";
+import { updateName } from "../../redux/slices/usersSlice";
 
 import {
   EditFilled,
@@ -26,7 +26,7 @@ const ViewProfile: React.FC = () => {
   const [contactName, setContactName] = useState<string>(user?.name || "");
 
   const handleSaveChnage = (): void => {
-    dispatch(changeName({ userId: selectedUser, userName: contactName }));
+    dispatch(updateName({ userId: selectedUser, userName: contactName }));
     setEditName(!editName);
   };
 
@@ -65,11 +65,15 @@ const ViewProfile: React.FC = () => {
       >
         <div className="flex flex-col gap-5">
           <div className="flex justify-center items-center w-[100%]">
-            <img
-              src={register}
-              alt="profilePic"
-              className="h-[200px] w-[200px] rounded-full border border-gray-400 bg-cover"
-            />
+            {user?.profilePic ? (
+              <img
+                src={user?.profilePic}
+                alt="profilePic"
+                className="h-[200px] w-[200px] rounded-full border border-gray-400 bg-cover"
+              />
+            ) : (
+              <Avatar size={200} icon={<UserOutlined />}/>
+            )}
             <div className="relative h-[200px]">
               <label className="cursor-pointer absolute bottom-0 right-0">
                 <input type="file" className="hidden" />

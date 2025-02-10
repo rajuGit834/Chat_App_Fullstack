@@ -1,4 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import cat1 from "../../assets/cat1.webp"
+import cat2 from "../../assets/cat2.webp"
+import cat3 from "../../assets/cat3.webp"
+import cat4 from "../../assets/cat4.webp"
 
 interface Message {
   msgId: number;
@@ -11,6 +15,7 @@ interface User {
   id: number;
   name: string;
   isActive: boolean;
+  profilePic: string;
   messages: Message[];
 }
 
@@ -19,6 +24,7 @@ const initialUser: User[] = [
     id: 1,
     name: "raju kumar",
     isActive: true,
+    profilePic: cat1,
     messages: [
       {
         msgId: 1,
@@ -69,6 +75,7 @@ const initialUser: User[] = [
     id: 2,
     name: "abhishek kumar",
     isActive: false,
+    profilePic: cat2,
     messages: [
       {
         msgId: 1,
@@ -106,6 +113,7 @@ const initialUser: User[] = [
     id: 3,
     name: "kamal kumar",
     isActive: true,
+    profilePic: cat3,
     messages: [
       {
         msgId: 1,
@@ -143,6 +151,7 @@ const initialUser: User[] = [
     id: 4,
     name: "anand",
     isActive: false,
+    profilePic: "",
     messages: [
       {
         msgId: 1,
@@ -180,6 +189,7 @@ const initialUser: User[] = [
     id: 5,
     name: "deepak kumar",
     isActive: false,
+    profilePic: cat4,
     messages: [
       {
         msgId: 1,
@@ -217,6 +227,7 @@ const initialUser: User[] = [
     id: 6,
     name: "supriya kumari",
     isActive: true,
+    profilePic: cat2,
     messages: [
       {
         msgId: 1,
@@ -269,7 +280,7 @@ const userSlice = createSlice({
     setSelectedUser: (state, action: PayloadAction<number>) => {
       state.selectedUser = action.payload;
     },
-    changeName: (
+    updateName: (
       state,
       action: PayloadAction<{ userId: number; userName: string }>
     ) => {
@@ -291,8 +302,47 @@ const userSlice = createSlice({
         user.messages.push(action.payload.message);
       }
     },
+    updateMessage: (
+      state,
+      action: PayloadAction<{
+        userId: Number;
+        messageId: number;
+        message: string;
+      }>
+    ) => {
+      const user = state.users.find(
+        (user) => user.id === action.payload.userId
+      );
+
+      if (user) {
+        user.messages = user.messages.map((msg) =>
+          msg.msgId === action.payload.messageId
+            ? { ...msg, message: action.payload.message }
+            : msg
+        );
+      }
+    },
+    deleteMessage: (
+      state,
+      action: PayloadAction<{ userId: number; messageId: number }>
+    ) => {
+      const user = state.users.find(
+        (user) => user.id === action.payload.userId
+      );
+      if (user) {
+        user.messages = user.messages.filter(
+          (message) => message.msgId !== action.payload.messageId
+        );
+      }
+    },
   },
 });
 
-export const { setSelectedUser, addMessage, changeName } = userSlice.actions;
+export const {
+  setSelectedUser,
+  addMessage,
+  updateName,
+  updateMessage,
+  deleteMessage,
+} = userSlice.actions;
 export default userSlice.reducer;
