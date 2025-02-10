@@ -15,7 +15,7 @@ const UploadImage: React.FC<ImageProps> = ({ image, setImage }) => {
         event.target.value = "";
         return;
       }
-      setImage(URL.createObjectURL(file));
+      setImage(URL.createObjectURL(file)); // convert in temporary url from local url
     }
   };
 

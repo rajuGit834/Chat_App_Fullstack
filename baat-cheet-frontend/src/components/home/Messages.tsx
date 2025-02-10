@@ -18,7 +18,11 @@ interface MessagesProps {
   messages: Message[];
 }
 
-const List: React.FC<{ msg: Message }> = ({ msg }) => {
+interface ListProps {
+  msg: Message;
+}
+
+const List: React.FC<ListProps> = ({ msg }) => {
   const dispatch = useDispatch();
   const selectedUser = useSelector(
     (state: RootState) => state.users.selectedUser
@@ -51,7 +55,6 @@ const List: React.FC<{ msg: Message }> = ({ msg }) => {
             style={{
               border: "none",
               boxShadow: "none",
-              background: "red",
               padding: 0,
               height: 0,
             }}
@@ -64,6 +67,7 @@ const List: React.FC<{ msg: Message }> = ({ msg }) => {
     </Space>
   );
 };
+
 const Messages: React.FC<MessagesProps> = ({ messages }) => {
   const [onHover, setOnHover] = useState<number | null>(null);
 
@@ -79,7 +83,6 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
           <div
             className="flex justify-between gap-2 w-full relative"
             onMouseEnter={() => setOnHover(msg.msgId)}
-            // onMouseLeave={() => setOnHover(null)}
           >
             {msg.imagePath && (
               <img
@@ -88,7 +91,6 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
                 alt="msgImage"
               />
             )}
-            {/* <input type="text" className="outlined-bone"  value={msg.message}/> */}
             <p className="pl-2">{msg.message}</p>
 
             {msg.msgId === onHover && <List msg={msg} />}

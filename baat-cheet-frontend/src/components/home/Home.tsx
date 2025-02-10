@@ -17,6 +17,7 @@ const Home: React.FC = () => {
   const [userMessage, setUserMessage] = useState("");
   const dispatch = useDispatch();
   const users = useSelector((state: RootState) => state.users.users);
+
   const selectedUser = useSelector(
     (state: RootState) => state.users.selectedUser
   );
@@ -55,6 +56,7 @@ const Home: React.FC = () => {
 
   return (
     <Layout style={{ height: "100vh" }}>
+      {/* sideer */}
       <Sider
         breakpoint="lg"
         collapsedWidth="0"
@@ -75,7 +77,7 @@ const Home: React.FC = () => {
                 backgroundColor: "gray",
                 verticalAlign: "middle",
               }}
-              // size="large"
+              size="large"
             >
               <UserOutlined className="text-[20px]" />
             </Avatar>
@@ -85,6 +87,7 @@ const Home: React.FC = () => {
           </div>
         </div>
         <hr className="text-gray-600" />
+        {/* all contacts */}
         <Menu
           theme="dark"
           mode="inline"
@@ -100,9 +103,19 @@ const Home: React.FC = () => {
             >
               <div className="flex gap-2 items-center">
                 <Avatar
-                  className="block sm:hidden sm:w-full"
                   size="large"
-                  src={user.profilePic || <UserOutlined style={{color:"gray", fontSize:"20px", background: "white", padding: "9px"}} />}
+                  src={
+                    user.profilePic || (
+                      <UserOutlined
+                        style={{
+                          color: "gray",
+                          fontSize: "20px",
+                          background: "white",
+                          padding: "9px",
+                        }}
+                      />
+                    )
+                  }
                 />
                 <Text
                   style={{ color: "white" }}
@@ -134,13 +147,15 @@ const Home: React.FC = () => {
             paddingRight: "10px",
           }}
         >
-          <div className="relative w-[50%]">
+          <div className="relative">
             <div className="flex gap-5 items-center">
               <Avatar
                 size="large"
                 src={
                   users.find((user) => user.id === selectedUser)
-                    ?.profilePic || <UserOutlined style={{color:"gray", fontSize:"20px"}}/>
+                    ?.profilePic || (
+                    <UserOutlined style={{ color: "gray", fontSize: "20px" }} />
+                  )
                 }
               />
 
@@ -156,6 +171,12 @@ const Home: React.FC = () => {
               </div>
             </div>
           </div>
+          {/* <div className="object-contain">
+              <h1 className="text-[20px] font-bold bg-gradient-to-r from-[#2921b8] via-[#090979] to-[#00d4ff] text-transparent bg-clip-text">
+                Baat-Cheet
+              </h1>
+            </div> */}
+
           <Tooltip
             title="logout"
             className="float-right text-[22px] p-2 hover:bg-gray-400/50 rounded-full cursor-pointer"

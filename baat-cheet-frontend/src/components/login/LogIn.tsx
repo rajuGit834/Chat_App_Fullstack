@@ -22,7 +22,7 @@ const LogIn: React.FC = () => {
           if (result.message === "Login successful") {
             toast.success("Login Successfull!", {
               position: "top-center",
-              autoClose: 2000,
+              autoClose: 500,
             });
             localStorage.setItem("baat-cheet-webToken", result.token);
             setTimeout(() => {
