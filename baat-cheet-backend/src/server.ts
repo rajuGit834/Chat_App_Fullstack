@@ -1,20 +1,21 @@
-import express, { Request, Response } from "express";
-import cors from "cors";
-
+import express from "express";
+import { connectDB } from "./lib/db";
 import dotenv from "dotenv";
-
-//import UserModel from "./models/users";
-import authRoutes from "./routes/auth.routes";
-
-const app = express();
+import authRoutes from "./routes/auth.routes"; // Import routes
 
 dotenv.config();
 
-app.use("/api/auth", authRoutes);
-app.use(cors());
-app.use(express.json()); // To parse incoming JSON requests
+const app = express();
 
-// Start server
-app.listen(5001, () => {
-    console.log("Server is running on port 5001");
+// ✅ Middleware
+app.use(express.json()); // Parse JSON body
+
+// ✅ Routes
+app.use("/api/auth", authRoutes);
+
+app.listen(5000, () => {
+  console.log("🚀 Server is running on port 5000");
 });
+
+// ✅ Connect to MongoDB
+connectDB();
