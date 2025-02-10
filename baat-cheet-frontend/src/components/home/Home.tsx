@@ -50,13 +50,8 @@ const Home: React.FC = () => {
   };
 
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { colorBgContainer },
   } = theme.useToken();
-
-  const getColor = (): string => {
-    const randomNumber: number = Math.floor(Math.random() * 1000000);
-    return `#${randomNumber.toString(16).padStart(6, "0")}`;
-  };
 
   return (
     <Layout style={{ height: "100vh" }}>
@@ -105,17 +100,14 @@ const Home: React.FC = () => {
             >
               <div className="flex gap-2 items-center">
                 <Avatar
-                  className="block sm:hidden sm:w-full" 
-                  style={{
-                    backgroundColor: getColor(),
-                    verticalAlign: "middle",
-                  }}
+                  className="block sm:hidden sm:w-full"
                   size="large"
+                  src={user.profilePic || <UserOutlined style={{color:"gray", fontSize:"20px", background: "white", padding: "9px"}} />}
+                />
+                <Text
+                  style={{ color: "white" }}
+                  className="hidden sm:block truncate"
                 >
-                  {user.name.charAt(0).toUpperCase()}
-                </Avatar>
-
-                <Text style={{color: "white"}} className="hidden sm:block truncate">
                   {user.name}
                 </Text>
               </div>
@@ -145,18 +137,13 @@ const Home: React.FC = () => {
           <div className="relative w-[50%]">
             <div className="flex gap-5 items-center">
               <Avatar
-                style={{
-                  backgroundColor: getColor(),
-                  verticalAlign: "middle",
-                }}
                 size="large"
-                gap={20}
-              >
-                {users
-                  .find((user) => user.id === selectedUser)
-                  ?.name.charAt(0)
-                  .toUpperCase()}
-              </Avatar>
+                src={
+                  users.find((user) => user.id === selectedUser)
+                    ?.profilePic || <UserOutlined style={{color:"gray", fontSize:"20px"}}/>
+                }
+              />
+
               <div className="flex flex-col justify-center items-start">
                 <Text className="truncate font-bold">
                   {users.find((user) => user.id === selectedUser)?.name}
