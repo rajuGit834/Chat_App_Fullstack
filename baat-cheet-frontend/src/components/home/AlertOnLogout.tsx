@@ -1,19 +1,25 @@
-import { Button, PopconfirmProps, message, Popconfirm } from "antd";
-
+import { Button, PopconfirmProps, Popconfirm } from "antd";
 import { useNavigate } from "react-router-dom";
 
-const AlertOnLogout: React.FC = () => {
+interface AlertMessageProps {
+  setAlertMessage: React.Dispatch<React.SetStateAction<string | null>>;
+}
+
+const AlertOnLogout: React.FC<AlertMessageProps> = ({ setAlertMessage }) => {
   const navigate = useNavigate();
   const confirm: PopconfirmProps["onConfirm"] = () => {
-    message.success("You Loged Out Successfully!");
-
+    setAlertMessage("You Loged Out Successfully!");
     setTimeout(() => {
+      setAlertMessage(null);
       navigate("/login");
     }, 500);
   };
 
   const cancel: PopconfirmProps["onCancel"] = () => {
-    message.error("Click on No");
+    setAlertMessage("😊 Thank You!  Keep Chatting...");
+    setTimeout(() => {
+      setAlertMessage(null);
+    }, 1000);
   };
 
   return (
