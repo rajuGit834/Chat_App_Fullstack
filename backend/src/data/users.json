@@ -1,0 +1,42 @@
+[
+    {
+      "_id": "65c123456789abcdef000001",
+      "firstName": "Raju",
+      "lastName": "Kumar",
+      "email": "raju@example.com",
+      "password": "hashedpassword123",
+      "profilePic": "https://example.com/profile1.jpg",
+      "status": "online",
+      "contacts": [
+        "65c123456789abcdef000002",
+        "65c123456789abcdef000003"
+      ],
+      "createdAt": "2025-02-11T12:00:00Z",
+      "updatedAt": "2025-02-11T12:30:00Z"
+    },
+    {
+      "_id": "65c123456789abcdef000002",
+      "firstName": "Abhishek",
+      "lastName": "Singh",
+      "email": "abhishek@example.com",
+      "password": "hashedpassword456",
+      "profilePic": "https://example.com/profile2.jpg",
+      "status": "offline",
+      "contacts": ["65c123456789abcdef000001"],
+      "createdAt": "2025-02-11T12:05:00Z",
+      "updatedAt": "2025-02-11T12:35:00Z"
+    },
+    {
+      "_id": "65c123456789abcdef000003",
+      "firstName": "Kamal",
+      "lastName": "Verma",
+      "email": "kamal@example.com",
+      "password": "hashedpassword789",
+      "profilePic": "https://example.com/profile3.jpg",
+      "status": "online",
+      "contacts": ["65c123456789abcdef000001"],
+      "createdAt": "2025-02-11T12:10:00Z",
+      "updatedAt": "2025-02-11T12:40:00Z"
+    }
+  ]
+  

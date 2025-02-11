@@ -1,0 +1,43 @@
+[
+    {
+      "_id": "65c987654321abcdef000001",
+      "sender": "65c123456789abcdef000001",
+      "receiver": "65c123456789abcdef000002",
+      "message": "Hey Abhishek, how are you?",
+      "imageUrl": "",
+      "status": "sent",
+      "createdAt": "2025-02-11T13:00:00Z",
+      "updatedAt": "2025-02-11T13:05:00Z"
+    },
+    {
+      "_id": "65c987654321abcdef000002",
+      "sender": "65c123456789abcdef000002",
+      "receiver": "65c123456789abcdef000001",
+      "message": "I'm good, Raju. How about you?",
+      "imageUrl": "",
+      "status": "delivered",
+      "createdAt": "2025-02-11T13:06:00Z",
+      "updatedAt": "2025-02-11T13:10:00Z"
+    },
+    {
+      "_id": "65c987654321abcdef000003",
+      "sender": "65c123456789abcdef000001",
+      "receiver": "65c123456789abcdef000003",
+      "message": "",
+      "imageUrl": "https://example.com/image1.jpg",
+      "status": "seen",
+      "createdAt": "2025-02-11T13:15:00Z",
+      "updatedAt": "2025-02-11T13:20:00Z"
+    },
+    {
+      "_id": "65c987654321abcdef000004",
+      "sender": "65c123456789abcdef000003",
+      "receiver": "65c123456789abcdef000001",
+      "message": "Nice pic!",
+      "imageUrl": "",
+      "status": "sent",
+      "createdAt": "2025-02-11T13:25:00Z",
+      "updatedAt": "2025-02-11T13:30:00Z"
+    }
+  ]
+  

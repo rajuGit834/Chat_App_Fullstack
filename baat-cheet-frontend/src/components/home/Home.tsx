@@ -1,8 +1,131 @@
-import { useState } from "react";
+// import { useState } from "react";
+// import { Button, Dropdown, Space } from "antd";
+// import type { MenuProps } from "antd";
+// import { MoreOutlined } from "@ant-design/icons";
+// import { useSelector, useDispatch } from "react-redux";
+// import { RootState } from "../../redux/store";
+// import { deleteMessage } from "../../redux/slices/usersSlice";
+// import UpdateMessageModal from "./UpdateMessageModal";
+
+// interface Message {
+//   _id: string;
+//   sender: string;
+//   receiver: string;
+//   message: string;
+//   imageUrl: string;
+// }
+
+// interface MessagesProps {
+//   messages: Message[];
+// }
+
+// interface ListProps {
+//   msg: Message;
+// }
+
+// const List: React.FC<ListProps> = ({ msg }) => {
+//   const dispatch = useDispatch();
+//   const selectedUser = useSelector(
+//     (state: RootState) => state.users.selectedUser
+//   );
+//   const currentUser = useSelector(
+//     (state: RootState) => state.users.currentUser
+//   );
+
+//   const handleDeleteMessage = (): void => {
+//     dispatch(deleteMessage({ userId: selectedUser, messageId: msg._id }));
+//   };
+
+//   const items: MenuProps["items"] = [
+//     {
+//       key: "1",
+//       label: <p onClick={handleDeleteMessage}>Delete</p>,
+//     },
+//     {
+//       key: "2",
+//       label: msg.sender === currentUser && <UpdateMessageModal message={msg} />,
+//     },
+//   ];
+
+//   return (
+//     <Space direction="vertical">
+//       <Space wrap>
+//         <Dropdown
+//           menu={{ items }}
+//           placement="bottomLeft"
+//           arrow={{ pointAtCenter: true }}
+//         >
+//           <Button
+//             style={{ border: "none", boxShadow: "none", padding: 0, height: 0 }}
+//             className="absolute right-0 cursor-pointer"
+//           >
+//             <MoreOutlined className="text-gray-600" />
+//           </Button>
+//         </Dropdown>
+//       </Space>
+//     </Space>
+//   );
+// };
+
+// const Messages: React.FC<MessagesProps> = ({ messages }) => {
+//   const [onHover, setOnHover] = useState<string | null>(null);
+//   const selectedUser = useSelector(
+//     (state: RootState) => state.users.selectedUser
+//   );
+//   const currentUser = useSelector(
+//     (state: RootState) => state.users.currentUser
+//   );
+
+//   // ✅ Filter only messages between current user and selected user
+//   const filteredMessages = messages.filter(
+//     (msg) =>
+//       (msg.sender === currentUser && msg.receiver === selectedUser) ||
+//       (msg.sender === selectedUser && msg.receiver === currentUser)
+//   );
+
+//   return (
+//     <div className="flex flex-col gap-3 w-full overflow-y-auto h-[100%]">
+//       {filteredMessages.map((msg) => (
+//         <div
+//           key={msg._id}
+//           className={`flex justify-between min-w-[150px] max-w-[45%] break-all relative p-3 rounded-lg ${
+//             msg.sender === currentUser
+//               ? "ml-auto bg-blue-300"
+//               : "mr-auto bg-gray-200"
+//           }`}
+//         >
+//           <div
+//             className="flex justify-between gap-2 w-full relative"
+//             onMouseEnter={() => setOnHover(msg._id)}
+//           >
+//             {msg.imageUrl && (
+//               <img
+//                 className="h-[200px] w-[200px] bg-cover"
+//                 src={msg.imageUrl}
+//                 alt="msgImage"
+//               />
+//             )}
+//             <p className="pl-2">{msg.message}</p>
+
+//             {msg._id === onHover && <List msg={msg} />}
+//           </div>
+//           <p className="text-[11px] text-gray-500 absolute bottom-0 right-5">
+//             10:01
+//           </p>
+//         </div>
+//       ))}
+//     </div>
+//   );
+// };
+
+// export default Messages;
+
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelectedUser, addMessage } from "../../redux/slices/usersSlice";
 import { RootState } from "../../redux/store";
 
+// import { socket } from "../../socket";
 import UploadImage from "./UploadImage";
 import Messages from "./Messages";
 import Dropdowns from "./Dropdowns";
@@ -12,11 +135,30 @@ import { SendOutlined, UserOutlined } from "@ant-design/icons";
 const { Header, Content, Sider, Footer } = Layout;
 const { Text } = Typography;
 
+import { io } from "socket.io-client";
+const socket = io("http://localhost:4005", { withCredentials: true });
+
 const Home: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
   const [userMessage, setUserMessage] = useState("");
   const dispatch = useDispatch();
   const users = useSelector((state: RootState) => state.users.users);
+
+  useEffect(() => {
+    console.log("Connecting to WebSocket...");
+    socket.on("message", (data) => {
+      dispatch(
+        addMessage({
+          userId: data.userId,
+          message: data.message,
+        })
+      );
+    });
+
+    return () => {
+      socket.off("message"); // Clean up listener
+    };
+  }, [dispatch]);
 
   const selectedUser = useSelector(
     (state: RootState) => state.users.selectedUser
@@ -33,6 +175,12 @@ const Home: React.FC = () => {
       userMsgId =
         msgArray.length > 0 ? msgArray[msgArray.length - 1].msgId + 1 : 1;
     }
+    const newMessage = {
+      msgId: userMsgId,
+      type: "send",
+      message: userMessage,
+      imagePath: image || "",
+    };
 
     dispatch(
       addMessage({
@@ -46,6 +194,7 @@ const Home: React.FC = () => {
       })
     );
 
+    socket.emit("message", { userId: selectedUser, message: newMessage });
     setUserMessage("");
     setImage(null);
   };

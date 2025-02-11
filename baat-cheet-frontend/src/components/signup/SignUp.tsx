@@ -3,18 +3,55 @@ import { Button, Col, Form, Input, Row, Typography } from "antd";
 import { LockOutlined, UserOutlined, MailOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
 const SignUp: React.FC = () => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
+
+  const handleSignup = (values: any): void => {
+    fetch("http://localhost:4005/api/auth/signup", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(values),
+    })
+      .then((response) => {
+        response.json().then((result) => {
+          console.log(result);
+          if (result.message === "User created successfully") {
+            toast.success("Registration Successfull!", {
+              position: "top-center",
+              autoClose: 500,
+            });
+            // localStorage.setItem("baat-cheet-webToken", result.token);
+            setTimeout(() => {
+              navigate("/login");
+            }, 500);
+          } else {
+            toast.error(result.error, {
+              position: "top-center",
+              autoClose: 2000,
+            });
+          }
+        });
+      })
+      .catch((error) => {
+        toast.error(error.message, {
+          position: "top-center",
+          autoClose: 2000,
+        });
+        console.log(error);
+      });
+  };
 
   const onFinish = (values: any) => {
-    toast.success("Registration Successful!", {
-      position: "top-center",
-      autoClose: 3000,
-    });
-    console.log("Received values of form: ", values);
+    console.log(values)
+    handleSignup(values);
   };
 
   return (
@@ -50,7 +87,7 @@ const SignUp: React.FC = () => {
           scrollToFirstError
         >
           <Form.Item
-            name="firstname"
+            name="firstName"
             rules={[
               {
                 required: true,
@@ -65,7 +102,7 @@ const SignUp: React.FC = () => {
             />
           </Form.Item>
           <Form.Item
-            name="lastname"
+            name="lastName"
             rules={[
               {
                 required: true,
