@@ -9,8 +9,9 @@ const { Title } = Typography;
 const LogIn: React.FC = () => {
   const navigate = useNavigate();
   const handleLogin = (values: any): void => {
-    fetch("http://localhost:5000/api/auth/login", {
+    fetch("http://localhost:4005/api/auth/login", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-type": "application/json",
       },
@@ -19,12 +20,12 @@ const LogIn: React.FC = () => {
       .then((response) => {
         response.json().then((result) => {
           console.log(result);
-          if (result.message === "Login successful") {
+          if (result.message === "Login Successful") {
             toast.success("Login Successfull!", {
               position: "top-center",
               autoClose: 500,
             });
-            localStorage.setItem("baat-cheet-webToken", result.token);
+            // localStorage.setItem("baat-cheet-webToken", result.token);
             setTimeout(() => {
               navigate("/");
             }, 500);
