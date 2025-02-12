@@ -7,7 +7,6 @@ import { Server } from "socket.io";
 import connectDB from "./config/db";
 import userRoutes from "./routes/userRoutes";
 import messageRoutes from "./routes/messageRoutes";
-import Message from "./models/messageModel";
 
 dotenv.config();
 
@@ -16,7 +15,7 @@ const server = createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173", // Vite's default port
+    origin: "http://localhost:5173",
     credentials: true,
     methods: ["GET", "POST"],
   },

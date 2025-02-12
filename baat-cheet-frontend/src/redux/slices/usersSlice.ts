@@ -201,7 +201,6 @@ const userSlice = createSlice({
       state.currentUserId = action.payload;
     },
     setMessage: (state, action: PayloadAction<MessageType[]>) => {
-      console.log("calling my setUser slice");
       state.messages = action.payload;
     },
     addMessage: (

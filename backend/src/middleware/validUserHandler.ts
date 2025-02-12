@@ -11,7 +11,6 @@ export const validUserHandler = (
   next: NextFunction
 ) => {
   const token = req.cookies.jwt;
-  console.log(req.url)
 
   if (!token) {
     res.status(401).json({ error: "Unauthorized: No token provided" });
@@ -26,9 +25,7 @@ export const validUserHandler = (
     }
 
     const decodedUser = jwt.verify(token, SECRET_KEY);
-    // console.log("decoded:", decodedUser);
     req.user = decodedUser;
-    console.log(req.user)
     next();
   } catch (error) {
     res.status(403).json({ error: "Forbidden: Invalid token!" });

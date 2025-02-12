@@ -1,22 +1,17 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  setSelectedUser,
-  addMessage,
-} from "../../redux/slices/usersSlice";
+import { setSelectedUser, addMessage } from "../../redux/slices/usersSlice";
 import { RootState } from "../../redux/store";
+import {socket} from "../../socket"
 
 import UploadImage from "./UploadImage";
 import Messages from "./Messages";
-// import Dropdowns from "./Dropdowns";
+import Dropdowns from "./Dropdowns";
 
 import { Layout, Menu, theme, Avatar, Typography, Tooltip } from "antd";
 import { SendOutlined, UserOutlined } from "@ant-design/icons";
 const { Header, Content, Sider, Footer } = Layout;
 const { Text } = Typography;
-
-import { io } from "socket.io-client";
-const socket = io("http://localhost:4005", { withCredentials: true });
 
 interface MessageType {
   msgId: string;
@@ -34,7 +29,6 @@ const Home: React.FC = () => {
 
   //new
   const users = useSelector((state: RootState) => state.users.users);
-  console.log("hey user,,", users);
   const messages = useSelector((state: RootState) => state.users.messages);
 
   const selectedUser = useSelector(
@@ -44,7 +38,6 @@ const Home: React.FC = () => {
   const currentUser = useSelector(
     (state: RootState) => state.users.getCurrentUser
   );
-  console.log("in Home current user", currentUser);
 
   useEffect(() => {
     console.log("Connecting to WebSocket...");
@@ -110,7 +103,6 @@ const Home: React.FC = () => {
           console.log(collapsed, type);
         }}
         width={"20%"}
-        // className="overflow-y-auto h-full"
       >
         {/* user profile */}
         <div className="demo-logo-vertical h-[63px] bg-[#0e2d4b] text-white">
@@ -226,7 +218,7 @@ const Home: React.FC = () => {
             title="logout"
             className="float-right text-[22px] p-2 hover:bg-gray-400/50 rounded-full cursor-pointer"
           >
-            {/* <Dropdowns /> */}
+            <Dropdowns />
           </Tooltip>
         </Header>
         <Content style={{ margin: "24px 16px 0" }}>

@@ -27,14 +27,12 @@ const SignUp: React.FC = () => {
     })
       .then((response) => {
         response.json().then((result) => {
-          console.log(result);
           if (result.message === "User created successfully") {
             toast.success("Registration Successfull!", {
               position: "top-center",
               autoClose: 500,
             });
             dispatch(setUsers(result.user));
-            // localStorage.setItem("baat-cheet-webToken", result.token);
             setTimeout(() => {
               navigate("/login");
             }, 500);
@@ -56,7 +54,6 @@ const SignUp: React.FC = () => {
   };
 
   const onFinish = (values: any) => {
-    console.log(values);
     handleSignup(values);
   };
 
