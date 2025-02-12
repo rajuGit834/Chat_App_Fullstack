@@ -7,6 +7,7 @@ import { Server } from "socket.io";
 import connectDB from "./config/db";
 import userRoutes from "./routes/userRoutes";
 import messageRoutes from "./routes/messageRoutes";
+import Message from "./models/messageModel";
 
 dotenv.config();
 
@@ -23,54 +24,114 @@ const io = new Server(server, {
 
 // WebSocket Connection
 
-io.on("connection", (socket) => {
-  console.log(`User connected: ${socket.id}`);
+const users = new Map(); // ✅ Store connected users (socket.id mapping)
 
-  socket.on("message", (data) => {
-    console.log("Message received:", data);
-    io.emit("message", data); // Send message to all clients
+io.on("connection", (socket) => {
+  console.log("A user connected:", socket.id);
+
+  // ✅ Store user socket ID when they connect
+  socket.on("register", (userId) => {
+    users.set(userId, socket.id);
+    console.log(`User Registered: ${userId} -> ${socket.id}`); // ✅ Debugging
   });
 
+  // ✅ Listen for Messages
+  socket.on("message", async (data) => {
+    const { sender, receiver, message, imageUrl } = data;
+
+    if (!sender || !receiver) {
+      console.log("Error: senderId or receiverId missing");
+      return;
+    }
+
+    try {
+      // ✅ Save message to database
+      const newMessage = new Message({
+        sender,
+        receiver,
+        message,
+        imageUrl,
+        status: "sent",
+      });
+
+      await newMessage.save();
+
+      // ✅ Send message to receiver (one-to-one chat)
+      const receiverSocketId = users.get(receiver);
+      console.log(`Receiver Socket ID: ${receiverSocketId}`); // ✅ Debugging
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("message", newMessage);
+      }
+
+      // ✅ Also send back to sender (for UI update)
+      socket.emit("message", newMessage);
+    } catch (error) {
+      console.error("Message save error:", error);
+    }
+  });
+
+  // ✅ Remove user from Map on disconnect
   socket.on("disconnect", () => {
-    console.log(`User disconnected: ${socket.id}`);
+    users.forEach((value, key) => {
+      if (value === socket.id) {
+        users.delete(key);
+        console.log(`User ${key} disconnected.`);
+      }
+    });
+
+    console.log("User disconnected:", socket.id);
   });
 });
 
+
 // io.on("connection", (socket) => {
-//   console.log("A user connected:", socket.id);
+//   console.log(`User connected: ${socket.id}`);
 
-//   // Listen for Messages
 //   socket.on("message", (data) => {
-//     const { sender, receiver, message, imageUrl } = data;
-
-//     if (!sender || !receiver) {
-//       console.log("Error: senderId or receiverId missing");
-//       return;
-//     }
-
-//     try {
-//       // Save message to database
-//       // const newMessage = new Message({
-//       //   sender,
-//       //   receiver,
-//       //   message,
-//       //   imageUrl,
-//       //   status: "sent",
-//       // });
-
-//       // await newMessage.save();
-
-//       // Emit saved message to receiver only (one-to-one chat)
-//       io.to(receiver).emit("message", data);
-//     } catch (error) {
-//       console.error("Message save error:", error);
-//     }
+//     console.log("Message received:", data);
+//     io.emit("message", data); // Send message to all clients
 //   });
 
 //   socket.on("disconnect", () => {
-//     console.log("User disconnected:", socket.id);
+//     console.log(`User disconnected: ${socket.id}`);
 //   });
 // });
+
+io.on("connection", (socket) => {
+  console.log("A user connected:", socket.id);
+
+  // Listen for Messages
+  socket.on("message", async (data) => {
+    const { sender, receiver, message, imageUrl } = data;
+
+    if (!sender || !receiver) {
+      console.log("Error: senderId or receiverId missing");
+      return;
+    }
+
+    try {
+      // Save message to database
+      const newMessage = new Message({
+        sender,
+        receiver,
+        message,
+        imageUrl,
+        status: "sent",
+      });
+
+      await newMessage.save();
+
+      // Emit saved message to receiver only (one-to-one chat)
+      io.to(receiver).emit("message", data);
+    } catch (error) {
+      console.error("Message save error:", error);
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
+});
 
 // Middleware
 app.use(express.json());
