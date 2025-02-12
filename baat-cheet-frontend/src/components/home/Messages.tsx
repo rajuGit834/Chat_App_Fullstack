@@ -127,9 +127,9 @@ import { Button, Dropdown, Space } from "antd";
 import type { MenuProps } from "antd";
 import { MoreOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../redux/store";
 import { setMessage } from "../../redux/slices/usersSlice";
 import UpdateMessageModal from "./UpdateMessageModal";
+import { RootState } from "../../redux/store";
 
 // const messages = [
 //   {
@@ -288,16 +288,13 @@ interface ListProps {
 // };
 
 const Messages: React.FC<MessagesProps> = ({ messages }) => {
-  console.log("messages.....", messages);
   const [onHover, setOnHover] = useState<String | null>(null);
   // const currentUser = useSelector(
   //   (state: RootState) => state.users.currentUser
   // );
-  const currentUser = {
-    _id: "67abb2bc3d6b758f6200081c",
-    firstName: "supriya kumari",
-    email: "sksingh@g.com",
-  };
+  const currentUser = useSelector(
+    (state: RootState) => state.users.getCurrentUser
+  );
   const dispatch = useDispatch();
   const selectedUser = useSelector(
     (state: RootState) => state.users.selectedUser
@@ -329,8 +326,8 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
   // }, [selectedUser, dispatch]);
 
   console.log("All Messages:", messages);
-  console.log("Current User:", currentUser?._id);
-  console.log("Selected User:", selectedUser);
+  // console.log("Current User:", currentUser?._id);
+  // console.log("Selected User:", selectedUser);
 
   return (
     <div className="flex flex-col gap-3 w-full overflow-y-auto h-[100%]">

@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   setSelectedUser,
   addMessage,
-  setUsers,
 } from "../../redux/slices/usersSlice";
 import { RootState } from "../../redux/store";
 
@@ -28,85 +27,44 @@ interface MessageType {
   status: "sent" | "delivered" | "seen";
 }
 
-// interface User {
-//   _id: string;
-//   firstName: string;
-//   lastName: string;
-//   email: string;
-//   profilePic: string;
-//   status: "online" | "offline";
-//   // messages: MessageType[];
-// }
-
 const Home: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
   const [userMessage, setUserMessage] = useState("");
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    fetch("http://localhost:4005/api/auth/", {
-      method: "GET",
-      credentials: "include",
-      headers: { "Content-type": "application/json" },
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        // console.log("API Response:", result);
-        if (result && Array.isArray(result)) {
-          // console.log("Dispatching setUsers with:", result);
-          dispatch(setUsers(result));
-        } else {
-          console.warn("Expected an array but got:", result);
-        }
-      })
-      .catch((error) => console.error("Fetch error:", error));
-  }, [dispatch]);
-
   //new
   const users = useSelector((state: RootState) => state.users.users);
-  // console.log("users", users);
+  console.log("hey user,,", users);
   const messages = useSelector((state: RootState) => state.users.messages);
-  // const currentUser = useSelector(
-  //   (state: RootState) => state.users.currentUser
-  // );
+
   const selectedUser = useSelector(
     (state: RootState) => state.users.selectedUser
   );
 
-  const currentUser = {
-    _id: "67abb2bc3d6b758f6200081c",
-    name: "supriya kumari",
-    email: "sksingh@g.com",
-  };
+  const currentUser = useSelector(
+    (state: RootState) => state.users.getCurrentUser
+  );
+  console.log("in Home current user", currentUser);
 
-  // useEffect(() => {
-  //   console.log("Connecting to WebSocket...");
+  useEffect(() => {
+    console.log("Connecting to WebSocket...");
 
-  //   const newMessage: MessageType = {
-  //     msgId: "1",
-  //     sender: String(currentUser?._id),
-  //     receiver: String(selectedUser),
-  //     message: "",
-  //     imageUrl: "",
-  //     status: "sent",
-  //   };
+    const handleMessage = (data: MessageType) => {
+      dispatch(addMessage({ message: data }));
+    };
 
-  //   socket.on("message", (data) => {
-  //     dispatch(addMessage({ message: newMessage }));
-  //   });
+    socket.on("message", handleMessage);
 
-  //   return () => {
-  //     socket.off("message"); // Clean up listener
-  //   };
-  // }, [dispatch]);
+    return () => {
+      socket.off("message", handleMessage);
+    };
+  }, [dispatch, currentUser?._id, selectedUser]);
 
   const handleSubmitUserMessage = (): void => {
     if (!userMessage.trim() && !image) return;
 
-    // Find the selected user in the user list
     const user = users.find((user) => user._id === selectedUser);
 
-    // Generate message ID properly
     let userMsgId: string = "1";
     if (user && messages.length > 0) {
       userMsgId = (
@@ -129,12 +87,8 @@ const Home: React.FC = () => {
         message: newMessage,
       })
     );
+    socket.emit("message", newMessage);
 
-    // Emit message via WebSocket
-    // socket.emit("message", { userId: selectedUser, message: newMessage });
-
-    // Reset input fields
-    console.log("calling........");
     setUserMessage("");
     setImage(null);
   };
@@ -185,43 +139,53 @@ const Home: React.FC = () => {
             dispatch(setSelectedUser(e.selectedKeys[0]));
           }}
         >
-          {users.map((user): any => (
-            <Menu.Item
-              key={user._id}
-              style={{ height: "70px", position: "relative" }}
-            >
-              <div className="flex gap-2 items-center">
-                <Avatar
-                  size="large"
-                  src={
-                    user.profilePic || (
-                      <UserOutlined
-                        style={{
-                          color: "gray",
-                          fontSize: "20px",
-                          background: "white",
-                          padding: "9px",
-                        }}
-                      />
-                    )
-                  }
-                />
-                <Text
-                  style={{ color: "white" }}
-                  className="hidden sm:block truncate"
+          {users
+            .filter((user) => {
+              console.log("hey i am here");
+              return user._id !== currentUser?._id;
+            })
+            .map((user): any => {
+              console.log(" in loop");
+              return (
+                <Menu.Item
+                  key={user._id}
+                  style={{ height: "70px", position: "relative" }}
                 >
-                  {user.firstName + " " + user.lastName}
-                </Text>
-              </div>
-              <div className="flex items-center absolute gap-2 left-[50px] bottom-4">
-                <div
-                  className={`h-[11px] w-[11px] rounded-full bg-red ${
-                    user.status === "online" ? "bg-green-500" : "bg-gray-500"
-                  }`}
-                ></div>
-              </div>
-            </Menu.Item>
-          ))}
+                  <div className="flex gap-2 items-center">
+                    <Avatar
+                      size="large"
+                      src={
+                        user.profilePic || (
+                          <UserOutlined
+                            style={{
+                              color: "gray",
+                              fontSize: "20px",
+                              background: "white",
+                              padding: "9px",
+                            }}
+                          />
+                        )
+                      }
+                    />
+                    <Text
+                      style={{ color: "white" }}
+                      className="hidden sm:block truncate"
+                    >
+                      {user.firstName + " " + user.lastName}
+                    </Text>
+                  </div>
+                  <div className="flex items-center absolute gap-2 left-[50px] bottom-4">
+                    <div
+                      className={`h-[11px] w-[11px] rounded-full bg-red ${
+                        user.status === "online"
+                          ? "bg-green-500"
+                          : "bg-gray-500"
+                      }`}
+                    ></div>
+                  </div>
+                </Menu.Item>
+              );
+            })}
         </Menu>
       </Sider>
       <Layout>
@@ -258,12 +222,6 @@ const Home: React.FC = () => {
               </div>
             </div>
           </div>
-          {/* <div className="object-contain">
-              <h1 className="text-[20px] font-bold bg-gradient-to-r from-[#2921b8] via-[#090979] to-[#00d4ff] text-transparent bg-clip-text">
-                Baat-Cheet
-              </h1>
-            </div> */}
-
           <Tooltip
             title="logout"
             className="float-right text-[22px] p-2 hover:bg-gray-400/50 rounded-full cursor-pointer"

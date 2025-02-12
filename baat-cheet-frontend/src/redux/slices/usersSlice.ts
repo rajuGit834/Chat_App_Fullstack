@@ -2,7 +2,6 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 // import { message } from "antd";
 // import { send } from "process";
 
-
 interface MessageType {
   msgId: string;
   sender?: string;
@@ -32,12 +31,13 @@ interface UserState {
   users: User[];
   messages: MessageType[];
   selectedUser: string | null;
-  currentUser: CurrentUser | null;
+  getCurrentUser: CurrentUser | null;
+  currentUserId: string | null;
 }
 
 const messages: MessageType[] = [
   {
-    msgId: 1,
+    msgId: "1",
     sender: "67abaa4930a7deef3d2dc365",
     receiver: "67abb2bc3d6b758f6200081c",
     message: "Hey Supriya, how are you?",
@@ -47,7 +47,7 @@ const messages: MessageType[] = [
     // updatedAt: "2025-02-12T08:00:01.000Z",
   },
   {
-    msgId: 2,
+    msgId: "2",
     sender: "67abb2bc3d6b758f6200081c",
     receiver: "67abaa4930a7deef3d2dc365",
     message: "Hi Raju! I'm good, how about you?",
@@ -57,7 +57,7 @@ const messages: MessageType[] = [
     // updatedAt: "2025-02-12T08:01:30.000Z",
   },
   {
-    msgId: 3,
+    msgId: "3",
     sender: "67abb2d03d6b758f62000820",
     receiver: "67abb82d9880ba7ee46b566d",
     message: "Hello! Did you complete the task?",
@@ -67,7 +67,7 @@ const messages: MessageType[] = [
     // updatedAt: "2025-02-12T08:05:00.000Z",
   },
   {
-    msgId: 4,
+    msgId: "4",
     sender: "67abb82d9880ba7ee46b566d",
     receiver: "67abb2d03d6b758f62000820",
     message: "Not yet, I'll finish it by evening.",
@@ -77,7 +77,7 @@ const messages: MessageType[] = [
     // updatedAt: "2025-02-12T08:10:05.000Z",
   },
   {
-    msgId: 5,
+    msgId: "5",
     sender: "67ac4640e54d0fcbabc17c26",
     receiver: "67ac47cde54d0fcbabc17c41",
     message: "Hey XYZ, are you coming to the meeting?",
@@ -87,7 +87,7 @@ const messages: MessageType[] = [
     // updatedAt: "2025-02-12T08:15:01.000Z",
   },
   {
-    msgId: 6,
+    msgId: "6",
     sender: "67ac47cde54d0fcbabc17c41",
     receiver: "67ac4640e54d0fcbabc17c26",
     message: "Yes, I’ll be there in 10 minutes.",
@@ -97,7 +97,7 @@ const messages: MessageType[] = [
     // updatedAt: "2025-02-12T08:16:30.000Z",
   },
   {
-    msgId: 7,
+    msgId: "7",
     sender: "67ac48c1e54d0fcbabc17c4b",
     receiver: "67abaa4930a7deef3d2dc365",
     message: "Raju, can you send me the report?",
@@ -107,7 +107,7 @@ const messages: MessageType[] = [
     // updatedAt: "2025-02-12T08:20:00.000Z",
   },
   {
-    msgId: 8,
+    msgId: "8",
     sender: "67abaa4930a7deef3d2dc365",
     receiver: "67ac48c1e54d0fcbabc17c4b",
     message: "Sure, I'll send it in 5 minutes.",
@@ -117,7 +117,7 @@ const messages: MessageType[] = [
     // updatedAt: "2025-02-12T08:22:10.000Z",
   },
   {
-    msgId: 9,
+    msgId: "9",
     sender: "67abb2bc3d6b758f6200081c",
     receiver: "67ac47cde54d0fcbabc17c41",
     message: "Hey XYZ, let's catch up later.",
@@ -127,7 +127,7 @@ const messages: MessageType[] = [
     // updatedAt: "2025-02-12T08:30:05.000Z",
   },
   {
-    msgId: 10,
+    msgId: "10",
     sender: "67ac47cde54d0fcbabc17c41",
     receiver: "67abb2bc3d6b758f6200081c",
     message: "Sure! Let's plan something.",
@@ -149,7 +149,8 @@ const initialState: UserState = {
   users: [],
   messages: messages,
   selectedUser: null,
-  currentUser: currentUser,
+  getCurrentUser: currentUser,
+  currentUserId: null,
 };
 
 // interface Message {
@@ -191,10 +192,13 @@ const userSlice = createSlice({
       state.users = action.payload;
     },
     setCurrentUser: (state, action: PayloadAction<CurrentUser | null>) => {
-      state.currentUser = action.payload;
+      state.getCurrentUser = action.payload;
     },
     setSelectedUser: (state, action: PayloadAction<string | null>) => {
       state.selectedUser = action.payload;
+    },
+    setCurrentUserId: (state, action: PayloadAction<string | null>) => {
+      state.currentUserId = action.payload;
     },
     setMessage: (state, action: PayloadAction<MessageType[]>) => {
       console.log("calling my setUser slice");
@@ -206,14 +210,14 @@ const userSlice = createSlice({
         message: MessageType;
       }>
     ) => {
-      state.messages.push(action.payload.message);
+      const id = action.payload.message.msgId;
+      const existingMsg = state.messages.find(
+        (message) => message.msgId === id
+      );
 
-      // const { senderId, receiverId, message } = action.payload;
-      // const sender = state.users.find((user) => user._id === senderId);
-      // const receiver = state.users.find((user) => user._id === receiverId);
-
-      // if (sender) sender.messages.push(message);
-      // if (receiver) receiver.messages.push(message);
+      if (!existingMsg) {
+        state.messages.push(action.payload.message);
+      }
     },
     //   updateMessage: (
     //     state,
@@ -267,8 +271,14 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUsers, setCurrentUser, setSelectedUser, addMessage, setMessage } =
-  userSlice.actions;
+export const {
+  setUsers,
+  setCurrentUser,
+  setSelectedUser,
+  setCurrentUserId,
+  addMessage,
+  setMessage,
+} = userSlice.actions;
 export default userSlice.reducer;
 
 // import { createSlice, PayloadAction } from "@reduxjs/toolkit";

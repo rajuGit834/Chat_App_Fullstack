@@ -6,13 +6,15 @@ import { Link, useNavigate } from "react-router-dom";
 
 // new
 import { useDispatch } from "react-redux";
-// import { setCurrentUser } from "../../redux/slices/usersSlice";
+import {
+  setCurrentUserId,
+} from "../../redux/slices/usersSlice";
 
 const { Title } = Typography;
 
 const LogIn: React.FC = () => {
   const navigate = useNavigate();
-  // const dispatch = useDispatch(); // new
+  const dispatch = useDispatch(); // new
 
   const handleLogin = (values: any): void => {
     fetch("http://localhost:4005/api/auth/login", {
@@ -31,8 +33,8 @@ const LogIn: React.FC = () => {
               position: "top-center",
               autoClose: 500,
             });
-            console.log(" current user", result.user)
-            // dispatch(setCurrentUser(result.user)); //new
+
+            dispatch(setCurrentUserId(result.user._id)); //new
 
             // localStorage.setItem("baat-cheet-webToken", result.token);
             setTimeout(() => {
