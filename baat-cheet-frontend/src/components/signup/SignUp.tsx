@@ -5,11 +5,16 @@ import { Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
+import { useDispatch } from "react-redux"; //new
+import { setUsers } from "../../redux/slices/usersSlice";
+
 const { Title } = Typography;
 
 const SignUp: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
+
+  const dispatch = useDispatch();
 
   const handleSignup = (values: any): void => {
     fetch("http://localhost:4005/api/auth/signup", {
@@ -28,6 +33,7 @@ const SignUp: React.FC = () => {
               position: "top-center",
               autoClose: 500,
             });
+            dispatch(setUsers(result.user));
             // localStorage.setItem("baat-cheet-webToken", result.token);
             setTimeout(() => {
               navigate("/login");
@@ -50,7 +56,7 @@ const SignUp: React.FC = () => {
   };
 
   const onFinish = (values: any) => {
-    console.log(values)
+    console.log(values);
     handleSignup(values);
   };
 

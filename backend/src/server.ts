@@ -70,7 +70,7 @@ app.use(
 
 // Routes
 app.use("/api/auth", userRoutes);
-app.use("upi/message", messageRoutes);
+app.use("/api/message", messageRoutes);
 
 // Database Connection
 connectDB();

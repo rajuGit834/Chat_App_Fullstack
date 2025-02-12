@@ -89,7 +89,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json({
       message: "Login Successful",
       user: {
-        id: user.id,
+        _id: user.id,
         name: user.firstName + " " + user.lastName,
         email: user.email,
       },

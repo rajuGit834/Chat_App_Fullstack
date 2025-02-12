@@ -11,6 +11,7 @@ export const validUserHandler = (
   next: NextFunction
 ) => {
   const token = req.cookies.jwt;
+  console.log(req.url)
 
   if (!token) {
     res.status(401).json({ error: "Unauthorized: No token provided" });
