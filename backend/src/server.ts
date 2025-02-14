@@ -21,14 +21,14 @@ const server = createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: process.env.SOCKET_ORIGIN,
     credentials: true,
   },
 });
 
 // WebSocket Connection
-
 const users = new Map(); // Store connected users
+const activeChats = new Map(); //Store user chatting with
 
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
@@ -39,6 +39,10 @@ io.on("connection", (socket) => {
     users.set(userId, socket.id);
     updateStatusOfUser(userId, "online");
     console.log(`User Registered: ${userId} -> ${socket.id}`);
+  });
+
+  socket.on("user_active_chat", ({ userId, chattingWith }) => {
+    activeChats.set(userId, chattingWith);
   });
 
   // Listen for Messages
@@ -73,6 +77,10 @@ io.on("connection", (socket) => {
     try {
       const { _id, sender, receiver, message, imageUrl, status } = data;
       const receiverSocketId = users.get(receiver);
+
+      if (activeChats.get(receiver) === sender) {
+        return;
+      }
 
       const messageId = new mongoose.Types.ObjectId(_id);
 

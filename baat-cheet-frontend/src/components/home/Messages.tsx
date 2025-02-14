@@ -74,6 +74,7 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
     (state: RootState) => state.users.selectedUser
   );
 
+  //fetching messages
   useEffect(() => {
     if (!selectedUser) return;
     console.log("Fetching messages for:", selectedUser);
@@ -82,6 +83,7 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
       try {
         const response = await getMessages(selectedUser);
         if (response.data.success) {
+          console.log("messages all", response.data.messages);
           dispatch(setMessage(response.data.messages));
         } else {
           console.log(response.data.error);
@@ -89,9 +91,8 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
       } catch (error) {
         console.log(error);
       }
-
-      fetchMessageOfSelectedUser();
     };
+    fetchMessageOfSelectedUser();
   }, [selectedUser]);
 
   const currentUser = useSelector(

@@ -8,7 +8,7 @@ import {
   removeNotification,
 } from "../../redux/slices/usersSlice";
 import { RootState } from "../../redux/store";
-import { socket } from "../../socket";
+import { socket } from "../../../services/socket";
 
 import UploadImage from "./UploadImage";
 import Messages from "./Messages";
@@ -61,7 +61,6 @@ const Home: React.FC = () => {
 
     const handleMessage = (data: MessageType) => {
       console.log("Received message:", data);
-      // setIsMessageReceived((prev) => !prev);
       // Ensure message is for the selected user
       if (
         (data.sender === currentUser?._id && data.receiver === selectedUser) ||
@@ -76,9 +75,7 @@ const Home: React.FC = () => {
     const handleNotification = (data: any) => {
       if (data.sender !== selectedUser && currentUser?._id !== data.sender) {
         dispatch(addNewNotification(data));
-        console.log("handle is 1");
       }
-      console.log("handle is 2");
     };
 
     const handleDeleteNotification = (selectedUser: string) => {
@@ -94,6 +91,22 @@ const Home: React.FC = () => {
       socket.off("notification", handleNotification);
     };
   }, [currentUser?._id, selectedUser]);
+
+  useEffect(() => {
+    if (selectedUser) {
+      socket.emit("user_active_chat", {
+        userId: currentUser?._id,
+        chattingWith: selectedUser,
+      });
+    }
+
+    return () => {
+      socket.emit("user_active_chat", {
+        userId: currentUser?._id,
+        chattingWith: null, // Reset when chat is closed
+      });
+    };
+  }, [selectedUser]);
 
   const messages = useSelector((state: RootState) => state.users.messages);
 
@@ -124,7 +137,7 @@ const Home: React.FC = () => {
       try {
         const response = await getAllNotifications(currentUser._id);
         if (response.data.success) {
-          setNotification(response.data.notifications);
+          dispatch(setNotification(response.data.notifications));
         } else {
           console.log(response.data.error);
         }
@@ -132,7 +145,6 @@ const Home: React.FC = () => {
         console.log(error);
       }
     };
-
     fetchAllNotification();
   }, []);
 
@@ -320,18 +332,20 @@ const Home: React.FC = () => {
         </Content>
         <Footer className="w-full bg-white p-4 shadow-md">
           {selectedUser && (
-            <div className="flex items-center justify-center gap-2 relative">
+            <div
+              className="flex items-center justify-center gap-2 relative"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmitUserMessage();
+                }
+              }}
+            >
               <textarea
                 placeholder="message..."
                 className="w-[80%] sm:w-full bg-gray-300 outline-blue-300 pl-5 pt-2 rounded-full"
                 value={userMessage}
                 onChange={(e) => setUserMessage(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmitUserMessage();
-                  }
-                }}
               />
               <UploadImage image={image} setImage={setImage} />
 
