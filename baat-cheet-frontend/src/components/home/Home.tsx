@@ -15,10 +15,10 @@ import { socket } from "../../socket";
 import UploadImage from "./UploadImage";
 import Messages from "./Messages";
 import Dropdowns from "./Dropdowns";
+import GroupSelector from "./GroupSelector";
 
 import { Layout, Menu, theme, Avatar, Typography, Tooltip } from "antd";
 import { SendOutlined, UserOutlined } from "@ant-design/icons";
-import GroupSelector from "./GroupSelector";
 const { Header, Content, Sider, Footer } = Layout;
 const { Text } = Typography;
 
@@ -227,7 +227,7 @@ const Home: React.FC = () => {
         width={"20%"}
       >
         {/* user profile */}
-        <div className="demo-logo-vertical h-[63px] bg-[#0e2d4b] text-white">
+        <div className="demo-logo-vertical h-[63px] bg-[#0e2d4b] text-white flex justify-between items-center">
           <div className="flex gap-2 items-center pl-2 pt-3">
             <Avatar
               style={{
@@ -243,7 +243,7 @@ const Home: React.FC = () => {
             </Text>
           </div>
         </div>
-        <GroupSelector />
+        <GroupSelector users={users} />
         <hr className="text-gray-600" />
 
         {/* all contacts */}
@@ -335,25 +335,29 @@ const Home: React.FC = () => {
             paddingRight: "10px",
           }}
         >
-          <div className="relative">
-            <div className="flex gap-5 items-center">
-              <Avatar
-                size="large"
-                src={
-                  (user && user?.profilePic) || (
-                    <UserOutlined style={{ color: "gray", fontSize: "20px" }} />
-                  )
-                }
-              />
+          {selectedUser && (
+            <div className="relative">
+              <div className="flex gap-5 items-center">
+                <Avatar
+                  size="large"
+                  src={
+                    (user && user?.profilePic) || (
+                      <UserOutlined
+                        style={{ color: "gray", fontSize: "20px" }}
+                      />
+                    )
+                  }
+                />
 
-              <div className="flex flex-col justify-center items-start">
-                <Text className="truncate font-bold">
-                  {user && user?.firstName + " " + user?.lastName}
-                </Text>
-                <Text>{user && user?.status}</Text>
+                <div className="flex flex-col justify-center items-start">
+                  <Text className="truncate font-bold">
+                    {user && user?.firstName + " " + user?.lastName}
+                  </Text>
+                  <Text>{user && user?.status}</Text>
+                </div>
               </div>
             </div>
-          </div>
+          )}
           <Tooltip
             title="logout"
             className="float-right text-[22px] p-2 hover:bg-gray-400/50 rounded-full cursor-pointer"
@@ -373,29 +377,31 @@ const Home: React.FC = () => {
           </div>
         </Content>
         <Footer className="w-full bg-white p-4 shadow-md">
-          <div className="flex items-center justify-center gap-2 relative">
-            <textarea
-              placeholder="message..."
-              className="w-[80%] sm:w-full bg-gray-300 outline-blue-300 pl-5 pt-2 rounded-full"
-              value={userMessage}
-              onChange={(e) => setUserMessage(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmitUserMessage();
-                }
-              }}
-            />
-            <UploadImage image={image} setImage={setImage} />
-
-            <Tooltip title={"Send"}>
-              <SendOutlined
-                style={{ color: "gray" }}
-                className="text-[20px] p-4 pl-4 pr-4 hover:bg-gray-300 rounded-full cursor-pointer text-center"
-                onClick={handleSubmitUserMessage}
+          {selectedUser && (
+            <div className="flex items-center justify-center gap-2 relative">
+              <textarea
+                placeholder="message..."
+                className="w-[80%] sm:w-full bg-gray-300 outline-blue-300 pl-5 pt-2 rounded-full"
+                value={userMessage}
+                onChange={(e) => setUserMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmitUserMessage();
+                  }
+                }}
               />
-            </Tooltip>
-          </div>
+              <UploadImage image={image} setImage={setImage} />
+
+              <Tooltip title={"Send"}>
+                <SendOutlined
+                  style={{ color: "gray" }}
+                  className="text-[20px] p-4 pl-4 pr-4 hover:bg-gray-300 rounded-full cursor-pointer text-center"
+                  onClick={handleSubmitUserMessage}
+                />
+              </Tooltip>
+            </div>
+          )}
         </Footer>
       </Layout>
     </Layout>
