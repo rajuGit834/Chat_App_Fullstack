@@ -4,9 +4,10 @@ import { LockOutlined, UserOutlined, MailOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { signupUser } from "../../api/usersApi";
 
 import { useDispatch } from "react-redux"; //new
-import { setUsers } from "../../redux/slices/usersSlice";
+import { addNewUser } from "../../redux/slices/usersSlice";
 
 const { Title } = Typography;
 
@@ -16,41 +17,29 @@ const SignUp: React.FC = () => {
 
   const dispatch = useDispatch();
 
-  const handleSignup = (values: any): void => {
-    fetch("http://localhost:4005/api/auth/signup", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-type": "application/json",
-      },
-      body: JSON.stringify(values),
-    })
-      .then((response) => {
-        response.json().then((result) => {
-          if (result.message === "User created successfully") {
-            toast.success("Registration Successfull!", {
-              position: "top-center",
-              autoClose: 500,
-            });
-            dispatch(setUsers(result.user));
-            setTimeout(() => {
-              navigate("/login");
-            }, 500);
-          } else {
-            toast.error(result.error, {
-              position: "top-center",
-              autoClose: 2000,
-            });
-          }
+  const handleSignup = async (values: any) => {
+    try {
+      const response = await signupUser(values);
+      if (response.data.success) {
+        toast.success("Registration Successfull!", {
+          position: "top-center",
+          autoClose: 500,
         });
-      })
-      .catch((error) => {
-        toast.error(error.message, {
+        dispatch(addNewUser(response.data));
+        navigate("/login");
+      } else {
+        toast.error(response.data.error, {
           position: "top-center",
           autoClose: 2000,
         });
-        console.log(error);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong. Please try again", {
+        position: "top-center",
+        autoClose: 2000,
       });
+    }
   };
 
   const onFinish = (values: any) => {

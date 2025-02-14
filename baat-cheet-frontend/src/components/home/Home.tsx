@@ -4,10 +4,8 @@ import {
   setSelectedUser,
   addMessage,
   addNewNotification,
-  setMessage,
   setNotification,
   removeNotification,
-  // selAllMessages,
 } from "../../redux/slices/usersSlice";
 import { RootState } from "../../redux/store";
 import { socket } from "../../socket";
@@ -15,25 +13,26 @@ import { socket } from "../../socket";
 import UploadImage from "./UploadImage";
 import Messages from "./Messages";
 import Dropdowns from "./Dropdowns";
+import GroupSelector from "./GroupSelector";
 
 import { Layout, Menu, theme, Avatar, Typography, Tooltip } from "antd";
 import { SendOutlined, UserOutlined } from "@ant-design/icons";
+import { getAllNotifications } from "../../api/notificationApi";
 const { Header, Content, Sider, Footer } = Layout;
 const { Text } = Typography;
 
 interface MessageType {
   _id: string;
   sender?: string;
-  receiver?: string;
-  message?: string;
-  imageUrl?: string;
+  receiver: string;
+  message: string;
+  imageUrl: string;
   status: "sent" | "delivered" | "seen";
 }
 
 const Home: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
   const [userMessage, setUserMessage] = useState("");
-  // const [isMessageReceived, setIsMessageReceived] = useState(false);
   const dispatch = useDispatch();
 
   const users = useSelector((state: RootState) => state.users.users);
@@ -71,8 +70,6 @@ const Home: React.FC = () => {
         dispatch(addMessage({ message: data }));
       }
 
-      // if (data.sender !== selectedUser && currentUser?._id !== data.sender) {
-      // }
       socket.emit("notification", data);
     };
 
@@ -98,33 +95,7 @@ const Home: React.FC = () => {
     };
   }, [currentUser?._id, selectedUser]);
 
-  // updating message status
-  // useEffect(() => {
-  //   fetch(`http://localhost:4005/api/message/all/${currentUser?._id}`, {
-  //     method: "GET",
-  //     credentials: "include",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //   })
-  //     .then((response) => response.json())
-  //     .then((result) => {
-  //       if (result.success) {
-  //         console.log("All Messages:", result.messages);
-  //         dispatch(selAllMessages(result.messages));
-  //       } else {
-  //         console.log("Unexpected API response format:", result);
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-  // }, [isMessageReceived]);
-
   const messages = useSelector((state: RootState) => state.users.messages);
-  // const allMessages = useSelector(
-  //   (state: RootState) => state.users.allMessages
-  // );
 
   const handleSubmitUserMessage = (): void => {
     if (!userMessage.trim() && !image) return;
@@ -145,51 +116,24 @@ const Home: React.FC = () => {
     setImage(null);
   };
 
+  // fetching notification
   useEffect(() => {
-    if (!selectedUser) return;
-    console.log("Fetching messages for:", selectedUser);
+    const fetchAllNotification = async () => {
+      if (!currentUser?._id) return;
 
-    fetch(`http://localhost:4005/api/message/${selectedUser}`, {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("API Response:", result);
-
-        if (result.success && Array.isArray(result.messages)) {
-          console.log("Dispatching messages:", result.messages);
-          dispatch(setMessage(result.messages));
+      try {
+        const response = await getAllNotifications(currentUser._id);
+        if (response.data.success) {
+          setNotification(response.data.notifications);
         } else {
-          console.warn("Unexpected API response format:", result);
+          console.log(response.data.error);
         }
-      })
-      .catch((error) => console.error("Fetch error:", error));
-  }, [selectedUser, dispatch]);
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-  useEffect(() => {
-    fetch(`http://localhost:4005/api/notification/${currentUser?._id}`, {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("API Response:", result);
-
-        if (result.success) {
-          console.log("Dispatching Notification:", result.notifications);
-          dispatch(setNotification(result.notifications));
-        } else {
-          console.warn("Unexpected API response format:", result);
-        }
-      })
-      .catch((error) => console.error("Fetch error:", error));
+    fetchAllNotification();
   }, []);
 
   const handleNotifications = (user: any) => {
@@ -225,7 +169,7 @@ const Home: React.FC = () => {
         width={"20%"}
       >
         {/* user profile */}
-        <div className="demo-logo-vertical h-[63px] bg-[#0e2d4b] text-white">
+        <div className="demo-logo-vertical h-[63px] bg-[#0e2d4b] text-white flex justify-between items-center">
           <div className="flex gap-2 items-center pl-2 pt-3">
             <Avatar
               style={{
@@ -241,6 +185,7 @@ const Home: React.FC = () => {
             </Text>
           </div>
         </div>
+        <GroupSelector users={users} />
         <hr className="text-gray-600" />
 
         {/* all contacts */}
@@ -332,25 +277,29 @@ const Home: React.FC = () => {
             paddingRight: "10px",
           }}
         >
-          <div className="relative">
-            <div className="flex gap-5 items-center">
-              <Avatar
-                size="large"
-                src={
-                  (user && user?.profilePic) || (
-                    <UserOutlined style={{ color: "gray", fontSize: "20px" }} />
-                  )
-                }
-              />
+          {selectedUser && (
+            <div className="relative">
+              <div className="flex gap-5 items-center">
+                <Avatar
+                  size="large"
+                  src={
+                    (user && user?.profilePic) || (
+                      <UserOutlined
+                        style={{ color: "gray", fontSize: "20px" }}
+                      />
+                    )
+                  }
+                />
 
-              <div className="flex flex-col justify-center items-start">
-                <Text className="truncate font-bold">
-                  {user && user?.firstName + " " + user?.lastName}
-                </Text>
-                <Text>{user && user?.status}</Text>
+                <div className="flex flex-col justify-center items-start">
+                  <Text className="truncate font-bold">
+                    {user && user?.firstName + " " + user?.lastName}
+                  </Text>
+                  <Text>{user && user?.status}</Text>
+                </div>
               </div>
             </div>
-          </div>
+          )}
           <Tooltip
             title="logout"
             className="float-right text-[22px] p-2 hover:bg-gray-400/50 rounded-full cursor-pointer"
@@ -370,29 +319,31 @@ const Home: React.FC = () => {
           </div>
         </Content>
         <Footer className="w-full bg-white p-4 shadow-md">
-          <div className="flex items-center justify-center gap-2 relative">
-            <textarea
-              placeholder="message..."
-              className="w-[80%] sm:w-full bg-gray-300 outline-blue-300 pl-5 pt-2 rounded-full"
-              value={userMessage}
-              onChange={(e) => setUserMessage(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmitUserMessage();
-                }
-              }}
-            />
-            <UploadImage image={image} setImage={setImage} />
-
-            <Tooltip title={"Send"}>
-              <SendOutlined
-                style={{ color: "gray" }}
-                className="text-[20px] p-4 pl-4 pr-4 hover:bg-gray-300 rounded-full cursor-pointer text-center"
-                onClick={handleSubmitUserMessage}
+          {selectedUser && (
+            <div className="flex items-center justify-center gap-2 relative">
+              <textarea
+                placeholder="message..."
+                className="w-[80%] sm:w-full bg-gray-300 outline-blue-300 pl-5 pt-2 rounded-full"
+                value={userMessage}
+                onChange={(e) => setUserMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmitUserMessage();
+                  }
+                }}
               />
-            </Tooltip>
-          </div>
+              <UploadImage image={image} setImage={setImage} />
+
+              <Tooltip title={"Send"}>
+                <SendOutlined
+                  style={{ color: "gray" }}
+                  className="text-[20px] p-4 pl-4 pr-4 hover:bg-gray-300 rounded-full cursor-pointer text-center"
+                  onClick={handleSubmitUserMessage}
+                />
+              </Tooltip>
+            </div>
+          )}
         </Footer>
       </Layout>
     </Layout>

@@ -3,58 +3,43 @@ import { ToastContainer, toast } from "react-toastify";
 import { Button, Checkbox, Form, Input, Row, Col, Typography } from "antd";
 import loginImage from "../../assets/login.jpg";
 import { Link, useNavigate } from "react-router-dom";
+import { loginUser } from "../../api/usersApi";
 
 // new
 import { useDispatch } from "react-redux";
-import {
-  setCurrentUserId,
-} from "../../redux/slices/usersSlice";
+import { setCurrentUserId } from "../../redux/slices/usersSlice";
 
 const { Title } = Typography;
 
 const LogIn: React.FC = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch(); // new
+  const dispatch = useDispatch();
 
-  const handleLogin = (values: any): void => {
-    fetch("http://localhost:4005/api/auth/login", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-type": "application/json",
-      },
-      body: JSON.stringify(values),
-    })
-      .then((response) => {
-        response.json().then((result) => {
-          console.log(result);
-          if (result.message === "Login Successful") {
-            toast.success("Login Successfull!", {
-              position: "top-center",
-              autoClose: 500,
-            });
-
-            dispatch(setCurrentUserId(result.user._id)); //new
-
-            // localStorage.setItem("baat-cheet-webToken", result.token);
-            setTimeout(() => {
-              navigate("/");
-            }, 500);
-          } else {
-            toast.error(result.error, {
-              position: "top-center",
-              autoClose: 2000,
-            });
-          }
-        });
-      })
-      .catch((error) => {
-        toast.error(error.message, {
+  const handleLogin = async (values: any) => {
+    try {
+      const response = await loginUser(values);
+      console.log("User logged in:", response.data);
+      if (response.data.success) {
+        toast.success("Login Successfull!", {
           position: "top-center",
           autoClose: 2000,
         });
-        console.log(error);
+
+        dispatch(setCurrentUserId(response.data.user._id));
+        navigate("/");
+      } else {
+        toast.error(response.data.error, {
+          position: "top-center",
+          autoClose: 2000,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong. Please try again", {
+        position: "top-center",
+        autoClose: 2000,
       });
+    }
   };
 
   const onFinish = (values: any) => {

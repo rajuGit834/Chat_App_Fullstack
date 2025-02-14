@@ -25,7 +25,7 @@ export const sendMessage = async (req: AuthRequest, res: Response) => {
     await newMessage.save();
     res.status(201).json({ success: true, message: newMessage });
   } catch (error) {
-    console.error("Error sending message:", error);
+    console.log("Error sending message:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
