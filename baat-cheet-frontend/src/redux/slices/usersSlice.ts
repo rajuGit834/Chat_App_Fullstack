@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { notification } from "antd";
 
 interface MessageType {
   _id: string;
@@ -183,14 +184,16 @@ const userSlice = createSlice({
         message: MessageType;
       }>
     ) => {
-      console.log("notification added", state.notifications);
       state.messages.push(action.payload.message);
-      console.log("notification after added", state.notifications);
     },
     setNotification: (state, action: PayloadAction<Notification[]>) => {
+      console.log("recv noti", action.payload);
       state.notifications = action.payload;
     },
     addNewNotification: (state, action: PayloadAction<Notification>) => {
+      state.notifications = state.notifications.filter(
+        (notification) => notification.messageId !== action.payload.messageId
+      );
       state.notifications.push(action.payload);
     },
     removeNotification: (state, action: PayloadAction<string>) => {

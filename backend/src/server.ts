@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -71,17 +72,18 @@ io.on("connection", (socket) => {
     try {
       const { _id, sender, receiver, message, imageUrl, status } = data;
       const receiverSocketId = users.get(receiver);
-      if (receiverSocketId) {
-        const newNotification = new Notification({
-          messageId: _id,
-          sender,
-          receiver,
-          message,
-          imageUrl,
-          status,
-        });
 
-        await newNotification.save();
+      const messageId = new mongoose.Types.ObjectId(_id);
+
+      const newNotification = await Notification.findOneAndUpdate(
+        { messageId },
+        { sender, receiver, message, imageUrl, status },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
+
+      console.log("Notification saved or updated:");
+
+      if (receiverSocketId) {
         io.to(receiverSocketId).emit("notification", newNotification);
       }
     } catch (error) {
@@ -94,7 +96,10 @@ io.on("connection", (socket) => {
       const { currentUser, selectedUser } = data;
       const receiverSocketId = users.get(currentUser);
       if (receiverSocketId) {
-        await Notification.deleteMany({ sender: selectedUser });
+        await Notification.deleteMany({
+          sender: selectedUser,
+          receiver: currentUser,
+        });
         io.to(receiverSocketId).emit("deleteNotification", selectedUser);
       }
     } catch (error) {

@@ -71,15 +71,17 @@ const Home: React.FC = () => {
         dispatch(addMessage({ message: data }));
       }
 
-      if (data.sender !== selectedUser && currentUser?._id !== data.sender) {
-        socket.emit("notification", data);
-      }
+      // if (data.sender !== selectedUser && currentUser?._id !== data.sender) {
+      // }
+      socket.emit("notification", data);
     };
 
     const handleNotification = (data: any) => {
       if (data.sender !== selectedUser && currentUser?._id !== data.sender) {
         dispatch(addNewNotification(data));
+        console.log("handle is 1");
       }
+      console.log("handle is 2");
     };
 
     const handleDeleteNotification = (selectedUser: string) => {
@@ -94,7 +96,7 @@ const Home: React.FC = () => {
       socket.off("message", handleMessage);
       socket.off("notification", handleNotification);
     };
-  }, [dispatch, currentUser?._id, selectedUser]);
+  }, [currentUser?._id, selectedUser]);
 
   // updating message status
   // useEffect(() => {
