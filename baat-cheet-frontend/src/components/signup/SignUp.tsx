@@ -5,11 +5,16 @@ import { Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
+import { useDispatch } from "react-redux"; //new
+import { setUsers } from "../../redux/slices/usersSlice";
+
 const { Title } = Typography;
 
 const SignUp: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
+
+  const dispatch = useDispatch();
 
   const handleSignup = (values: any): void => {
     fetch("http://localhost:4005/api/auth/signup", {
@@ -22,13 +27,12 @@ const SignUp: React.FC = () => {
     })
       .then((response) => {
         response.json().then((result) => {
-          console.log(result);
           if (result.message === "User created successfully") {
             toast.success("Registration Successfull!", {
               position: "top-center",
               autoClose: 500,
             });
-            // localStorage.setItem("baat-cheet-webToken", result.token);
+            dispatch(setUsers(result.user));
             setTimeout(() => {
               navigate("/login");
             }, 500);
@@ -50,7 +54,6 @@ const SignUp: React.FC = () => {
   };
 
   const onFinish = (values: any) => {
-    console.log(values)
     handleSignup(values);
   };
 

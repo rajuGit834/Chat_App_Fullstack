@@ -1,7 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { JSX, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { setCurrentUser } from "../redux/slices/usersSlice";
+import { setCurrentUser, setUsers } from "../redux/slices/usersSlice";
 
 interface PrivateRouteProps {
   element: JSX.Element;
@@ -26,8 +26,16 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ element }) => {
       const data = await response.json();
       console.log("User Authenticated:", data);
 
+      dispatch(setUsers(data.users));
+
       setIsAuthenticated(true);
-      dispatch(setCurrentUser(data.user));
+      dispatch(
+        setCurrentUser({
+          _id: data.logedInUser.id,
+          name: data.logedInUser.name,
+          email: data.logedInUser.email,
+        })
+      );
     } catch (error) {
       console.error("Auth Error:", error);
       setIsAuthenticated(false);

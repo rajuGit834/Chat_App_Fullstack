@@ -4,10 +4,18 @@ import { Button, Checkbox, Form, Input, Row, Col, Typography } from "antd";
 import loginImage from "../../assets/login.jpg";
 import { Link, useNavigate } from "react-router-dom";
 
+// new
+import { useDispatch } from "react-redux";
+import {
+  setCurrentUserId,
+} from "../../redux/slices/usersSlice";
+
 const { Title } = Typography;
 
 const LogIn: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // new
+
   const handleLogin = (values: any): void => {
     fetch("http://localhost:4005/api/auth/login", {
       method: "POST",
@@ -25,6 +33,9 @@ const LogIn: React.FC = () => {
               position: "top-center",
               autoClose: 500,
             });
+
+            dispatch(setCurrentUserId(result.user._id)); //new
+
             // localStorage.setItem("baat-cheet-webToken", result.token);
             setTimeout(() => {
               navigate("/");

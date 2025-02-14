@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import User from "../models/usersModel";
 import generateToken from "../utils/generateTokenUtil";
 
@@ -76,7 +75,20 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Generate JWT token
-    const token = generateToken({ id: user.id });
+    interface PayLoadData {
+      id: string;
+      name: string;
+      email: string | null;
+    }
+
+    const name = user.firstName + " " + user.lastName;
+
+    const payloadData: PayLoadData = {
+      id: user.id,
+      name: name,
+      email: user.email || null
+    }
+    const token = generateToken(payloadData);
 
     // Set cookie with token
     res.cookie("jwt", token, {
@@ -89,7 +101,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json({
       message: "Login Successful",
       user: {
-        id: user.id,
+        _id: user.id,
         name: user.firstName + " " + user.lastName,
         email: user.email,
       },
@@ -115,7 +127,8 @@ export const getAllUsers = async (
     }
 
     const users = await User.find().select("-password"); // Exclude password from response
-    res.status(200).json(users);
+    
+    res.status(200).json({ users, logedInUser: req.user });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch users" });
   }

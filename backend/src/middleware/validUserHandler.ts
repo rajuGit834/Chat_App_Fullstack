@@ -25,9 +25,7 @@ export const validUserHandler = (
     }
 
     const decodedUser = jwt.verify(token, SECRET_KEY);
-    // console.log("decoded:", decodedUser);
     req.user = decodedUser;
-    console.log(req.user)
     next();
   } catch (error) {
     res.status(403).json({ error: "Forbidden: Invalid token!" });
