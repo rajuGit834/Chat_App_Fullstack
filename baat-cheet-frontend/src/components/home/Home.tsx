@@ -18,6 +18,7 @@ import Dropdowns from "./Dropdowns";
 
 import { Layout, Menu, theme, Avatar, Typography, Tooltip } from "antd";
 import { SendOutlined, UserOutlined } from "@ant-design/icons";
+import GroupSelector from "./GroupSelector";
 const { Header, Content, Sider, Footer } = Layout;
 const { Text } = Typography;
 
@@ -71,8 +72,6 @@ const Home: React.FC = () => {
         dispatch(addMessage({ message: data }));
       }
 
-      // if (data.sender !== selectedUser && currentUser?._id !== data.sender) {
-      // }
       socket.emit("notification", data);
     };
 
@@ -145,6 +144,7 @@ const Home: React.FC = () => {
     setImage(null);
   };
 
+  // fetching Messages of selected user
   useEffect(() => {
     if (!selectedUser) return;
     console.log("Fetching messages for:", selectedUser);
@@ -169,6 +169,8 @@ const Home: React.FC = () => {
       })
       .catch((error) => console.error("Fetch error:", error));
   }, [selectedUser, dispatch]);
+
+  // fetching notification
 
   useEffect(() => {
     fetch(`http://localhost:4005/api/notification/${currentUser?._id}`, {
@@ -241,6 +243,7 @@ const Home: React.FC = () => {
             </Text>
           </div>
         </div>
+        <GroupSelector />
         <hr className="text-gray-600" />
 
         {/* all contacts */}
