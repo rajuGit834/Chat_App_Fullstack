@@ -4,10 +4,8 @@ import {
   setSelectedUser,
   addMessage,
   addNewNotification,
-  setMessage,
   setNotification,
   removeNotification,
-  // selAllMessages,
 } from "../../redux/slices/usersSlice";
 import { RootState } from "../../redux/store";
 import { socket } from "../../socket";
@@ -19,22 +17,22 @@ import GroupSelector from "./GroupSelector";
 
 import { Layout, Menu, theme, Avatar, Typography, Tooltip } from "antd";
 import { SendOutlined, UserOutlined } from "@ant-design/icons";
+import { getAllNotifications } from "../../api/notificationApi";
 const { Header, Content, Sider, Footer } = Layout;
 const { Text } = Typography;
 
 interface MessageType {
   _id: string;
   sender?: string;
-  receiver?: string;
-  message?: string;
-  imageUrl?: string;
+  receiver: string;
+  message: string;
+  imageUrl: string;
   status: "sent" | "delivered" | "seen";
 }
 
 const Home: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
   const [userMessage, setUserMessage] = useState("");
-  // const [isMessageReceived, setIsMessageReceived] = useState(false);
   const dispatch = useDispatch();
 
   const users = useSelector((state: RootState) => state.users.users);
@@ -97,33 +95,7 @@ const Home: React.FC = () => {
     };
   }, [currentUser?._id, selectedUser]);
 
-  // updating message status
-  // useEffect(() => {
-  //   fetch(`http://localhost:4005/api/message/all/${currentUser?._id}`, {
-  //     method: "GET",
-  //     credentials: "include",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //   })
-  //     .then((response) => response.json())
-  //     .then((result) => {
-  //       if (result.success) {
-  //         console.log("All Messages:", result.messages);
-  //         dispatch(selAllMessages(result.messages));
-  //       } else {
-  //         console.log("Unexpected API response format:", result);
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-  // }, [isMessageReceived]);
-
   const messages = useSelector((state: RootState) => state.users.messages);
-  // const allMessages = useSelector(
-  //   (state: RootState) => state.users.allMessages
-  // );
 
   const handleSubmitUserMessage = (): void => {
     if (!userMessage.trim() && !image) return;
@@ -144,54 +116,24 @@ const Home: React.FC = () => {
     setImage(null);
   };
 
-  // fetching Messages of selected user
-  useEffect(() => {
-    if (!selectedUser) return;
-    console.log("Fetching messages for:", selectedUser);
-
-    fetch(`http://localhost:4005/api/message/${selectedUser}`, {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("API Response:", result);
-
-        if (result.success && Array.isArray(result.messages)) {
-          console.log("Dispatching messages:", result.messages);
-          dispatch(setMessage(result.messages));
-        } else {
-          console.warn("Unexpected API response format:", result);
-        }
-      })
-      .catch((error) => console.error("Fetch error:", error));
-  }, [selectedUser, dispatch]);
-
   // fetching notification
-
   useEffect(() => {
-    fetch(`http://localhost:4005/api/notification/${currentUser?._id}`, {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("API Response:", result);
+    const fetchAllNotification = async () => {
+      if (!currentUser?._id) return;
 
-        if (result.success) {
-          console.log("Dispatching Notification:", result.notifications);
-          dispatch(setNotification(result.notifications));
+      try {
+        const response = await getAllNotifications(currentUser._id);
+        if (response.data.success) {
+          setNotification(response.data.notifications);
         } else {
-          console.warn("Unexpected API response format:", result);
+          console.log(response.data.error);
         }
-      })
-      .catch((error) => console.error("Fetch error:", error));
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchAllNotification();
   }, []);
 
   const handleNotifications = (user: any) => {

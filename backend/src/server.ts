@@ -9,7 +9,7 @@ import connectDB from "./config/db";
 import userRoutes from "./routes/userRoutes";
 import messageRoutes from "./routes/messageRoutes";
 import notificationRouters from "./routes/notificationRoute";
-import groupRoutes from "./routes/groupRoutes";
+import groupsRouter from "./routes/groupRoutes";
 import { updateStatusOfUser } from "./utils/handleUpdateStatus";
 import Message from "./models/messageModel";
 import Notification from "./models/notificationModel";
@@ -135,7 +135,7 @@ app.use(
 app.use("/api/auth", userRoutes);
 app.use("/api/message", messageRoutes);
 app.use("/api/notification", notificationRouters);
-app.use("/api/group", groupRoutes);
+app.use("/api/groups", groupsRouter);
 
 // Database Connection
 connectDB();

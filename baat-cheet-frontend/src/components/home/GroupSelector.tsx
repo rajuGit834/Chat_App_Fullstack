@@ -2,6 +2,7 @@ import { Select, Space, Button, Input } from "antd";
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import { createGroup } from "../../api/groupsApi";
 
 interface UserProps {
   _id: string;
@@ -27,34 +28,23 @@ const GroupSelector: React.FC<{ users: UserProps[] }> = ({ users }) => {
     setMembers(updatedMembers);
   };
 
-  const handleCreate = async () => {
+  const handleCreateNewGroup = async () => {
     if (!groupName.trim() || members.length <= 1) {
       console.log("Group name is required and at least 2 members needed.");
       return;
     }
-    // name, members, createdBy, admins, profilePic
     try {
-      const response = await fetch(
-        "http://localhost:4005/api/group/create-group",
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: groupName,
-            members,
-            createdBy: currentUser._id,
-            profilePic: "",
-          }),
-        }
+      const response = await createGroup(
+        groupName,
+        members,
+        currentUser._id,
+        ""
       );
 
-      const result = await response.json();
-      if (result.success) {
-        console.log("Group Created:", result.group);
-        setOnAddGroupButtonClicked((prev) => !prev);
+      if (response.data.success) {
+        console.log(response.data.message, response.data.group);
       } else {
-        console.log("Failed to create group.");
+        console.log(response.data.error);
       }
     } catch (error) {
       console.error("Error creating group:", error);
@@ -104,7 +94,7 @@ const GroupSelector: React.FC<{ users: UserProps[] }> = ({ users }) => {
               options={userOptions}
             />
             <Button
-              onClick={handleCreate}
+              onClick={handleCreateNewGroup}
               disabled={!groupName.trim() || members.length <= 1}
             >
               Create

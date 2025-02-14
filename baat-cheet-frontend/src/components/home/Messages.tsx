@@ -1,5 +1,8 @@
-import { useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../redux/store";
+import { setMessage } from "../../redux/slices/usersSlice";
+import { getMessages } from "../../api/messagesApi";
 
 interface MessageType {
   _id: string;
@@ -66,12 +69,33 @@ interface MessagesProps {
 
 const Messages: React.FC<MessagesProps> = ({ messages }) => {
   // const [onHover, setOnHover] = useState<String | null>(null);
+  const dispatch = useDispatch();
+  const selectedUser = useSelector(
+    (state: RootState) => state.users.selectedUser
+  );
+
+  useEffect(() => {
+    if (!selectedUser) return;
+    console.log("Fetching messages for:", selectedUser);
+
+    const fetchMessageOfSelectedUser = async () => {
+      try {
+        const response = await getMessages(selectedUser);
+        if (response.data.success) {
+          dispatch(setMessage(response.data.messages));
+        } else {
+          console.log(response.data.error);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+
+      fetchMessageOfSelectedUser();
+    };
+  }, [selectedUser]);
 
   const currentUser = useSelector(
     (state: RootState) => state.users.getCurrentUser
-  );
-  const selectedUser = useSelector(
-    (state: RootState) => state.users.selectedUser
   );
 
   return (

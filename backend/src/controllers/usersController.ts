@@ -9,10 +9,7 @@ interface AuthRequest extends Request {
 }
 
 // Register a New User (Signup)
-export const addNewUser = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const addNewUser = async (req: Request, res: Response) => {
   try {
     const { firstName, lastName, email, password } = req.body;
 
@@ -43,18 +40,18 @@ export const addNewUser = async (
 
     await user.save();
 
-    res.status(201).json({ message: "User created successfully", user });
+    res.status(201).json({ success: true, message: "User created successfully", user });
   } catch (error) {
     console.error("Error in addNewUser:", error);
     res.status(500).json({ error: "User registration failed" });
   }
 };
 
-export const loginUser = async (req: Request, res: Response): Promise<void> => {
+//Login User
+export const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
-    // Check if email and password are provided
     if (!email || !password) {
       res.status(400).json({ error: "Email and password are required" });
       return;
@@ -81,13 +78,11 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       email: string | null;
     }
 
-    const name = user.firstName + " " + user.lastName;
-
     const payloadData: PayLoadData = {
       id: user.id,
-      name: name,
-      email: user.email || null
-    }
+      name: user.firstName + " " + user.lastName,
+      email: user.email || null,
+    };
     const token = generateToken(payloadData);
 
     // Set cookie with token
@@ -99,13 +94,13 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 
     // Send response with user data and token
     res.status(200).json({
+      success: true,
       message: "Login Successful",
       user: {
         _id: user.id,
         name: user.firstName + " " + user.lastName,
         email: user.email,
       },
-      token,
     });
   } catch (error) {
     console.error("Login Error:", error);
@@ -114,10 +109,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 };
 
 // Get All Users (Protected Route)
-export const getAllUsers = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
+export const getAllUsers = async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
       res
@@ -127,7 +119,7 @@ export const getAllUsers = async (
     }
 
     const users = await User.find().select("-password"); // Exclude password from response
-    
+
     res.status(200).json({ users, logedInUser: req.user });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch users" });
