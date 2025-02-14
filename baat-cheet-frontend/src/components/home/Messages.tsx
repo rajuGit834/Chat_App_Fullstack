@@ -2,7 +2,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 
 interface MessageType {
-  msgId: string;
+  _id: string;
   sender?: string;
   receiver?: string;
   message?: string;
@@ -66,39 +66,13 @@ interface MessagesProps {
 
 const Messages: React.FC<MessagesProps> = ({ messages }) => {
   // const [onHover, setOnHover] = useState<String | null>(null);
+
   const currentUser = useSelector(
     (state: RootState) => state.users.getCurrentUser
   );
   const selectedUser = useSelector(
     (state: RootState) => state.users.selectedUser
   );
-  // useEffect(() => {
-  //   if (!selectedUser) return; // Prevent API call if no user is selected
-
-  //   console.log("Fetching messages for:", selectedUser);
-
-  //   fetch(`http://localhost:4005/api/message/${selectedUser}`, {
-  //     method: "GET",
-  //     credentials: "include",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //   })
-  //     .then((response) => response.json())
-  //     .then((result) => {
-  //       console.log("API Response:", result);
-
-  //       if (result.success && Array.isArray(result.messages)) {
-  //         console.log("Dispatching messages:", result.messages);
-  //         dispatch(setMessage(result.messages));
-  //       } else {
-  //         console.warn("Unexpected API response format:", result);
-  //       }
-  //     })
-  //     .catch((error) => console.error("Fetch error:", error));
-  // }, [selectedUser, dispatch]);
-
-  console.log("All Messages:", messages);
 
   return (
     <div className="flex flex-col gap-3 w-full overflow-y-auto h-[100%]">
@@ -109,9 +83,9 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
               msg.receiver === selectedUser) ||
             (msg.sender === selectedUser && msg.receiver === currentUser?._id)
         )
-        .map((msg, index) => (
+        .map((msg) => (
           <div
-            key={index}
+            key={msg._id}
             className={`flex justify-between min-w-[150px] max-w-[45%] break-all relative p-3 rounded-lg ${
               msg.sender === currentUser?._id
                 ? "ml-auto bg-blue-300"
@@ -133,9 +107,11 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
 
               {/* {msg.msgId === onHover && <List msg={msg} />} */}
             </div>
-            <p className="text-[11px] text-gray-500 absolute bottom-0 right-5">
-              10:01
-            </p>
+            {/* <p className="text-[11px] text-gray-500 absolute bottom-0 right-5">
+              {
+                new Date(msg?.createdAt && msg?.createdAt).toTimeString().split(" ")[0]
+              }
+            </p> */}
           </div>
         ))}
     </div>

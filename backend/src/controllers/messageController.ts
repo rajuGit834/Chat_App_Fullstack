@@ -5,10 +5,7 @@ interface AuthRequest extends Request {
   user?: { id: string };
 }
 
-export const sendMessage = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
+export const sendMessage = async (req: AuthRequest, res: Response) => {
   try {
     const { receiver, message, imageUrl } = req.body;
 
@@ -33,10 +30,7 @@ export const sendMessage = async (
   }
 };
 
-export const getMessages = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
+export const getMessages = async (req: AuthRequest, res: Response) => {
   try {
     const { receiverId } = req.params;
 
@@ -44,6 +38,11 @@ export const getMessages = async (
       res.status(400).json({ error: "Receiver ID is required" });
       return;
     }
+
+    await Message.updateMany(
+      { sender: receiverId , receiver: req.user?.id },
+      { $set: { status: "seen" } }
+    );
 
     const messages = await Message.find({
       $or: [
@@ -58,4 +57,20 @@ export const getMessages = async (
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+// export const getAllMessage = async (req: AuthRequest, res: Response) => {
+//   try {
+//     const {userId} = req.params;
+//     console.log("Fetching all messages for user:", userId);
+
+//     const messages = await Message.find({
+//       $or: [ { receiver: userId }],
+//     }).sort({ createdAt: 1 }); 
+
+//     res.status(200).json({ success: true, messages });
+//   } catch (error) {
+//     console.error("Error fetching messages:", error);
+//     res.status(500).json({ success: false, error: "Internal server error" });
+//   }
+// };
 

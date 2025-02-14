@@ -29,7 +29,6 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ element }) => {
       dispatch(setUsers(data.users));
 
       setIsAuthenticated(true);
-      console.log("in private route:", data.logedInUser);
       dispatch(
         setCurrentUser({
           _id: data.logedInUser.id,
