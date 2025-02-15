@@ -83,7 +83,7 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
       try {
         const response = await getMessages(selectedUser);
         if (response.data.success) {
-          console.log("messages all", response.data.messages);
+          console.log("all messages", response.data.messages);
           dispatch(setMessage(response.data.messages));
         } else {
           console.log(response.data.error);

@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
 interface MessageType {
   _id: string;
@@ -51,46 +51,41 @@ const userSlice = createSlice({
   name: "users",
   initialState,
   reducers: {
-    setUsers: (state, action: PayloadAction<User[]>) => {
+    setUsers: (state, action) => {
       state.users = action.payload;
     },
-    addNewUser: (state, action: PayloadAction<User>) => {
+    addNewUser: (state, action) => {
       state.users.push(action.payload);
     },
-    setCurrentUser: (state, action: PayloadAction<CurrentUser | null>) => {
+    setCurrentUser: (state, action) => {
       state.getCurrentUser = action.payload;
     },
-    setSelectedUser: (state, action: PayloadAction<string | null>) => {
+    setSelectedUser: (state, action) => {
       state.selectedUser = action.payload;
       state.notifications = state.notifications.filter(
         (notification) => notification.sender !== action.payload
       );
     },
-    setCurrentUserId: (state, action: PayloadAction<string | null>) => {
+    setCurrentUserId: (state, action) => {
       state.currentUserId = action.payload;
     },
-    setMessage: (state, action: PayloadAction<MessageType[]>) => {
+    setMessage: (state, action) => {
       state.messages = action.payload;
     },
-    addMessage: (
-      state,
-      action: PayloadAction<{
-        message: MessageType;
-      }>
-    ) => {
+    addMessage: (state, action) => {
       state.messages.push(action.payload.message);
     },
-    setNotification: (state, action: PayloadAction<Notification[]>) => {
+    setNotification: (state, action) => {
       console.log("recv noti", action.payload);
       state.notifications = action.payload;
     },
-    addNewNotification: (state, action: PayloadAction<Notification>) => {
+    addNewNotification: (state, action) => {
       state.notifications = state.notifications.filter(
         (notification) => notification.messageId !== action.payload.messageId
       );
       state.notifications.push(action.payload);
     },
-    removeNotification: (state, action: PayloadAction<string>) => {
+    removeNotification: (state, action) => {
       state.notifications = state.notifications.filter(
         (notification) => notification.sender !== action.payload
       );

@@ -1,23 +1,22 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  setSelectedUser,
   addMessage,
   addNewNotification,
-  setNotification,
   removeNotification,
 } from "../../redux/slices/usersSlice";
 import { RootState } from "../../redux/store";
-import { socket } from "../../../services/socket";
+import { getSocket } from "../../../services/socket";
 
 import UploadImage from "./UploadImage";
 import Messages from "./Messages";
 import Dropdowns from "./Dropdowns";
-import GroupSelector from "./GroupSelector";
+import UserList from "./UserList";
+import GroupList from "./GroupList";
 
-import { Layout, Menu, theme, Avatar, Typography, Tooltip } from "antd";
+import { Layout, theme, Avatar, Typography, Tooltip } from "antd";
 import { SendOutlined, UserOutlined } from "@ant-design/icons";
-import { getAllNotifications } from "../../api/notificationApi";
+
 const { Header, Content, Sider, Footer } = Layout;
 const { Text } = Typography;
 
@@ -44,15 +43,13 @@ const Home: React.FC = () => {
   const currentUser = useSelector(
     (state: RootState) => state.users.getCurrentUser
   );
-  const user = selectedUser && users.find((user) => user._id === selectedUser);
 
-  const notifications = useSelector(
-    (state: RootState) => state.users.notifications
-  );
+  const user = selectedUser && users.find((user) => user._id === selectedUser);
 
   // sockets
   useEffect(() => {
     console.log("Connecting to WebSocket...");
+    const socket = getSocket();
 
     if (currentUser?._id) {
       // Register user socket ID on connect
@@ -93,6 +90,7 @@ const Home: React.FC = () => {
   }, [currentUser?._id, selectedUser]);
 
   useEffect(() => {
+    const socket = getSocket();
     if (selectedUser) {
       socket.emit("user_active_chat", {
         userId: currentUser?._id,
@@ -112,6 +110,7 @@ const Home: React.FC = () => {
 
   const handleSubmitUserMessage = (): void => {
     if (!userMessage.trim() && !image) return;
+    const socket = getSocket();
 
     // New message object
     const newMessage: MessageType = {
@@ -129,46 +128,13 @@ const Home: React.FC = () => {
     setImage(null);
   };
 
-  // fetching notification
-  useEffect(() => {
-    const fetchAllNotification = async () => {
-      if (!currentUser?._id) return;
-
-      try {
-        const response = await getAllNotifications(currentUser._id);
-        if (response.data.success) {
-          dispatch(setNotification(response.data.notifications));
-        } else {
-          console.log(response.data.error);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchAllNotification();
-  }, []);
-
-  const handleNotifications = (user: any) => {
-    return notifications.filter(
-      (notification: any) => user._id === notification.sender
-    );
-  };
-
-  const getLastMessageOfNotification = (user: any) => {
-    const filtredMessages = handleNotifications(user);
-    if (filtredMessages.length > 0) {
-      return filtredMessages[filtredMessages.length - 1].message;
-    }
-    return "";
-  };
-
   const {
     token: { colorBgContainer },
   } = theme.useToken();
 
   return (
     <Layout style={{ height: "100vh" }}>
-      {/* sideer */}
+      {/* sider */}
       <Sider
         breakpoint="lg"
         collapsedWidth="0"
@@ -197,85 +163,13 @@ const Home: React.FC = () => {
             </Text>
           </div>
         </div>
-        <GroupSelector users={users} />
+
         <hr className="text-gray-600" />
-
+        {/* all groups */}
+        <GroupList />
+        <hr className="text-gray-600" />
         {/* all contacts */}
-        <Menu
-          theme="dark"
-          mode="inline"
-          defaultSelectedKeys={[""]}
-          onSelect={(e) => {
-            dispatch(setSelectedUser(e.selectedKeys[0]));
-            socket.emit("deleteNotification", {
-              currentUser: currentUser?._id,
-              selectedUser: e.selectedKeys[0],
-            });
-          }}
-        >
-          {users
-            .filter((user) => {
-              return user._id !== currentUser?._id;
-            })
-            .map((user): any => {
-              return (
-                <Menu.Item
-                  key={user._id}
-                  style={{ height: "70px", position: "relative" }}
-                >
-                  <div className="flex gap-2 items-center">
-                    <Avatar
-                      size="large"
-                      src={
-                        user.profilePic || (
-                          <UserOutlined
-                            style={{
-                              color: "gray",
-                              fontSize: "20px",
-                              background: "white",
-                              padding: "9px",
-                            }}
-                          />
-                        )
-                      }
-                    />
-                    <div className="flex flex-col">
-                      <Text
-                        style={{ color: "white" }}
-                        className="hidden sm:block truncate align-bottom"
-                      >
-                        {user.firstName + " " + user.lastName}
-                      </Text>
-
-                      {/* Handling the notification */}
-                      {handleNotifications(user).length > 0 && (
-                        <div className="flex gap-1">
-                          <p className="h-[25px] w-[25px] bg-red-400 rounded-full align-middle flex items-center justify-center font-bold">
-                            {handleNotifications(user).length}
-                          </p>
-
-                          <p className="truncate">
-                            {getLastMessageOfNotification(user)}
-                          </p>
-                        </div>
-                      )}
-                      {/* <p>{allMessages.filter((msg) => msg.status === "sent" && msg.sender ===  user._id).length}</p> */}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center absolute gap-2 left-[50px] bottom-4">
-                    <div
-                      className={`h-[11px] w-[11px] rounded-full bg-red ${
-                        user.status === "online"
-                          ? "bg-green-500"
-                          : "bg-gray-500"
-                      }`}
-                    ></div>
-                  </div>
-                </Menu.Item>
-              );
-            })}
-        </Menu>
+        <UserList />
       </Sider>
       <Layout>
         <Header

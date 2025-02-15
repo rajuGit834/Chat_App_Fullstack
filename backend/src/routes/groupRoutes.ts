@@ -1,8 +1,10 @@
 import express from "express";
-import { createGroup } from "../controllers/groupController";
+import { createGroup, findGroupByUserId } from "../controllers/groupController";
 import { validUserHandler } from "../middleware/validUserHandler";
 const router = express.Router();
 
-router.post("/create-group", validUserHandler, createGroup);
+router.get("/:userId", findGroupByUserId);
+router.use(validUserHandler);
+router.post("/create-group", createGroup);
 
 export default router;

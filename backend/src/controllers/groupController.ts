@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import { Request, Response } from "express";
 import Group from "../models/groupModel";
 import User from "../models/usersModel";
 
@@ -6,6 +6,7 @@ interface AuthRequest extends Request {
   user?: any;
 }
 
+// creating new group
 export const createGroup = async (req: AuthRequest, res: Response) => {
   try {
     const { name, members, createdBy, profilePic } = req.body;
@@ -35,6 +36,28 @@ export const createGroup = async (req: AuthRequest, res: Response) => {
       success: true,
       message: "Group created successfully",
       group: createdGroup,
+    });
+  } catch (error) {
+    console.error("Error creating group:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// fetching all groups
+export const findGroupByUserId = async (req: AuthRequest, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const userGroups = await User.findById(userId).select("groups");
+
+    if (!userGroups) {
+      res.status(400).json({ error: "No groups found" });
+    }
+
+    const group = await Group.find({ _id: { $in: userGroups?.groups } });
+
+    res.status(200).json({
+      success: true,
+      groups: group,
     });
   } catch (error) {
     console.error("Error sending message:", error);

@@ -35,7 +35,6 @@ io.on("connection", (socket) => {
 
   // Store user socket ID when they connect
   socket.on("register", async (userId) => {
-    console.log("userID", userId);
     users.set(userId, socket.id);
     updateStatusOfUser(userId, "online");
     console.log(`User Registered: ${userId} -> ${socket.id}`);

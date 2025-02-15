@@ -4,24 +4,12 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { createGroup } from "../../api/groupsApi";
 
-interface UserProps {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  profilePic: string;
-  status: "online" | "offline";
-}
-
-const GroupSelector: React.FC<{ users: UserProps[] }> = ({ users }) => {
+const GroupSelector: React.FC = () => {
   const [onAddGroupButtonClicked, setOnAddGroupButtonClicked] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [members, setMembers] = useState<string[]>([]);
+  const users = useSelector((state: any) => state.users.users);
   const currentUser = useSelector((state: any) => state.users.getCurrentUser);
-
-  const handleOnAddGroupButtonClicked = () => {
-    setOnAddGroupButtonClicked((prev) => !prev);
-  };
 
   const handleChange = (selectedMembers: string[]) => {
     const updatedMembers = [...new Set([...selectedMembers, currentUser._id])];
@@ -51,7 +39,7 @@ const GroupSelector: React.FC<{ users: UserProps[] }> = ({ users }) => {
     }
   };
 
-  const userOptions = users.map((user) => ({
+  const userOptions = users.map((user: any) => ({
     label: `${
       user._id === currentUser._id
         ? "You"
@@ -65,7 +53,7 @@ const GroupSelector: React.FC<{ users: UserProps[] }> = ({ users }) => {
       {!onAddGroupButtonClicked ? (
         <Button
           className="float-end mr-[5px] bg-transparent"
-          onClick={handleOnAddGroupButtonClicked}
+          onClick={() => setOnAddGroupButtonClicked(true)}
         >
           <PlusOutlined /> Group
         </Button>
@@ -79,7 +67,7 @@ const GroupSelector: React.FC<{ users: UserProps[] }> = ({ users }) => {
             />
             <CloseOutlined
               style={{ color: "white" }}
-              onClick={handleOnAddGroupButtonClicked}
+              onClick={() => setOnAddGroupButtonClicked(false)}
               className="float-end hover:bg-gray-400 rounded-full cursor-pointer p-1"
             />
           </div>

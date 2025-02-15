@@ -18,7 +18,7 @@ const LogIn: React.FC = () => {
   const handleLogin = async (values: any) => {
     try {
       const response = await loginUser(values);
-      console.log("User logged in:", response.data);
+
       if (response.data.success) {
         toast.success("Login Successfull!", {
           position: "top-center",

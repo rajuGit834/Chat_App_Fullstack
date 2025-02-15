@@ -1,7 +1,17 @@
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 
 const SOCKET_URL = import.meta.env.VITE_API_SOCKET_URL;
+let socket: Socket | null = null;
 
-export const socket = io(SOCKET_URL, {
-  withCredentials: true,
-});
+export const getSocket = () => {
+  if (!socket) {
+    console.log("Creating socket connection.");
+    socket = io(SOCKET_URL, { withCredentials: true });
+
+    socket.on("disconect", () => {
+      socket?.connect();
+    });
+  }
+  return socket;
+};
+
