@@ -5,7 +5,6 @@ import {
   addNewNotification,
   removeNotification,
 } from "../../redux/slices/usersSlice";
-import { RootState } from "../../redux/store";
 import { getSocket } from "../../../services/socket";
 
 import UploadImage from "./UploadImage";
@@ -16,6 +15,7 @@ import GroupList from "./GroupList";
 
 import { Layout, theme, Avatar, Typography, Tooltip } from "antd";
 import { SendOutlined, UserOutlined } from "@ant-design/icons";
+import { addGroupMessage } from "../../redux/slices/groupSlice";
 
 const { Header, Content, Sider, Footer } = Layout;
 const { Text } = Typography;
@@ -29,120 +29,38 @@ interface MessageType {
   status: "sent" | "delivered" | "seen";
 }
 
+interface GroupMessage {
+  _id: string;
+  sender?: string;
+  group: string;
+  message: string;
+  imageUrl: string;
+  status: "sent" | "delivered" | "seen";
+}
+
 const Home: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
   const [userMessage, setUserMessage] = useState("");
   const dispatch = useDispatch();
   const socket = getSocket();
 
-  const users = useSelector((state: RootState) => state.users.users);
-
-  const selectedUser = useSelector(
-    (state: RootState) => state.users.selectedUser
+  const users = useSelector((state: any) => state.users.users);
+  const groups = useSelector((state: any) => state.groups.groups);
+  const messages = useSelector((state: any) => state.users.messages);
+  const groupMessages = useSelector((state: any) => state.groups.groupMessages);
+  const selectedUser = useSelector((state: any) => state.users.selectedUser);
+  const selectedGroupId = useSelector(
+    (state: any) => state.groups.selectedGroupId
   );
 
-  const currentUser = useSelector(
-    (state: RootState) => state.users.getCurrentUser
-  );
-
-  const user = selectedUser && users.find((user) => user._id === selectedUser);
+  const currentUser = useSelector((state: any) => state.users.getCurrentUser);
+  const currentGroup = groups.filter(
+    (group: any) => group._id === selectedGroupId
+  )[0];
+  const user =
+    selectedUser && users.find((user: any) => user._id === selectedUser);
 
   // sockets
-  // useEffect(() => {
-  //   console.log("Connecting to WebSocket...");
-
-  //   if (currentUser?._id) {
-  //     console.log(`Registering user: ${currentUser._id}`);
-  //     socket.emit("register", currentUser._id);
-  //   }
-
-  //   return () => {
-  //     console.log(`Unregistering user: ${currentUser?._id}`);
-  //     socket.emit("user_active_chat", { userId: currentUser?._id, chattingWith: null });
-  //   };
-  // }, [currentUser?._id]);
-
-  // useEffect(() => {
-  //   console.log("Connecting to WebSocket...");
-
-  //   if (currentUser?._id) {
-  //     // Register user socket ID on connect
-  //     socket.emit("register", currentUser._id);
-  //   }
-
-  //   const handleMessage = (data: MessageType) => {
-  //     console.log("Received message:", data);
-  //     // Ensure message is for the selected user
-  //     if (
-  //       (data.sender === currentUser?._id && data.receiver === selectedUser) ||
-  //       (data.sender === selectedUser && data.receiver === currentUser?._id)
-  //     ) {
-  //       dispatch(addMessage({ message: data }));
-  //     }
-
-  //     socket.emit("notification", data);
-  //   };
-
-  //   const handleNotification = (data: any) => {
-  //     if (data.sender !== selectedUser && currentUser?._id !== data.sender) {
-  //       dispatch(addNewNotification(data));
-  //     }
-  //   };
-
-  //   const handleDeleteNotification = (selectedUser: string) => {
-  //     dispatch(removeNotification(selectedUser));
-  //   };
-
-  //   socket.on("message", handleMessage);
-  //   socket.on("notification", handleNotification);
-  //   socket.on("deleteNotification", handleDeleteNotification);
-
-  //   return () => {
-  //     socket.off("message", handleMessage);
-  //     socket.off("notification", handleNotification);
-  //     socket.off("deleteNotification", handleDeleteNotification);
-  //   };
-  // }, [currentUser?._id, selectedUser]);
-
-  // useEffect(() => {
-  //   const socket = getSocket();
-  //   if (selectedUser) {
-  //     socket.emit("user_active_chat", {
-  //       userId: currentUser?._id,
-  //       chattingWith: selectedUser,
-  //     });
-  //   }
-
-  //   return () => {
-  //     socket.emit("user_active_chat", {
-  //       userId: currentUser?._id,
-  //       chattingWith: null, // Reset when chat is closed
-  //     });
-  //   };
-  // }, [selectedUser]);
-
-  // const messages = useSelector((state: RootState) => state.users.messages);
-
-  // const handleSubmitUserMessage = (): void => {
-  //   if (!userMessage.trim() && !image) return;
-  //   const socket = getSocket();
-
-  //   // New message object
-  //   const newMessage: MessageType = {
-  //     _id: "",
-  //     sender: currentUser?._id,
-  //     receiver: String(selectedUser),
-  //     message: userMessage,
-  //     imageUrl: image || "",
-  //     status: "sent",
-  //   };
-
-  //   socket.emit("message", newMessage);
-
-  //   setUserMessage("");
-  //   setImage(null);
-  // };
-
   useEffect(() => {
     console.log("Connecting to WebSocket...");
 
@@ -184,20 +102,25 @@ const Home: React.FC = () => {
       dispatch(removeNotification(selectedUser));
     };
 
+    const handleGroupMessage = (newGroupMessage: any) => {
+      console.log("handle group", newGroupMessage);
+      dispatch(addGroupMessage(newGroupMessage));
+    };
+
     socket.on("message", handleMessage);
     socket.on("notification", handleNotification);
     socket.on("deleteNotification", handleDeleteNotification);
+    socket.on("groupMessage", handleGroupMessage);
 
     return () => {
       socket.off("message", handleMessage);
       socket.off("notification", handleNotification);
       socket.off("deleteNotification", handleDeleteNotification);
+      socket.off("groupMessage", handleGroupMessage);
     };
   }, [selectedUser]);
 
-  const messages = useSelector((state: RootState) => state.users.messages);
-
-  const handleSubmitUserMessage = (): void => {
+  const handleSubmitUserMessage = () => {
     if (!userMessage.trim() && !image) return;
 
     // New message object
@@ -210,7 +133,20 @@ const Home: React.FC = () => {
       status: "sent",
     };
 
-    socket.emit("message", newMessage);
+    const newGroupMessage: GroupMessage = {
+      _id: "",
+      sender: currentUser?._id,
+      group: String(selectedGroupId),
+      message: userMessage,
+      imageUrl: image || "",
+      status: "sent",
+    };
+
+    if (selectedUser) {
+      socket.emit("message", newMessage);
+    } else {
+      socket.emit("groupMessage", newGroupMessage);
+    }
 
     setUserMessage("");
     setImage(null);
@@ -294,6 +230,28 @@ const Home: React.FC = () => {
               </div>
             </div>
           )}
+          {selectedGroupId && (
+            <div className="relative">
+              <div className="flex gap-5 items-center">
+                <Avatar
+                  size="large"
+                  src={
+                    (currentGroup && currentGroup?.profilePic) || (
+                      <UserOutlined
+                        style={{ color: "gray", fontSize: "20px" }}
+                      />
+                    )
+                  }
+                />
+
+                <div className="flex flex-col justify-center items-start">
+                  <Text className="truncate font-bold">
+                    {currentGroup && currentGroup.name}
+                  </Text>
+                </div>
+              </div>
+            </div>
+          )}
           <Tooltip
             title="logout"
             className="float-right text-[22px] p-2 hover:bg-gray-400/50 rounded-full cursor-pointer"
@@ -309,11 +267,15 @@ const Home: React.FC = () => {
               height: "100%",
             }}
           >
-            <Messages messages={messages} />
+            {messages.length > 0 ? (
+              <Messages messages={messages} />
+            ) : (
+              <Messages messages={groupMessages} />
+            )}
           </div>
         </Content>
         <Footer className="w-full bg-white p-4 shadow-md">
-          {selectedUser && (
+          {(selectedUser || selectedGroupId) && (
             <div
               className="flex items-center justify-center gap-2 relative"
               onKeyDown={(e) => {

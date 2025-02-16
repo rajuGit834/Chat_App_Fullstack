@@ -10,9 +10,12 @@ import userRoutes from "./routes/userRoutes";
 import messageRoutes from "./routes/messageRoutes";
 import notificationRouters from "./routes/notificationRoute";
 import groupsRouter from "./routes/groupRoutes";
+import groupMessageRoutes from "./routes/groupMessageRoutes";
 import { updateStatusOfUser } from "./utils/handleUpdateStatus";
 import Message from "./models/messageModel";
 import Notification from "./models/notificationModel";
+import GroupMessage from "./models/groupMessageModel";
+import Group from "./models/groupModel";
 
 dotenv.config();
 
@@ -35,8 +38,23 @@ io.on("connection", (socket) => {
 
   // Store user socket ID when they connect
   socket.on("register", async (userId) => {
-    users.set(userId, socket.id);
-    updateStatusOfUser(userId, "online");
+    try {
+      users.set(userId, socket.id);
+      updateStatusOfUser(userId, "online");
+
+      const groups = await Group.find({ members: userId });
+
+      if (!groups.length) {
+        console.log(`User ${userId} has no groups`);
+        return;
+      }
+
+      groups.forEach((group) => {
+        socket.join(group._id.toString());
+      });
+    } catch (error) {
+      console.error("Error registering user:", error);
+    }
   });
 
   // Listen for Messages
@@ -64,6 +82,24 @@ io.on("connection", (socket) => {
       socket.emit("message", newMessage);
     } catch (error) {
       console.error("Message save error:", error);
+    }
+  });
+
+  socket.on("groupMessage", async (data) => {
+    const { sender, group, message, imageUrl } = data;
+    try {
+      const newGroupMessage = new GroupMessage({
+        sender,
+        group,
+        message,
+        imageUrl,
+      });
+
+      await newGroupMessage.save();
+
+      io.to(group).emit("groupMessage", newGroupMessage);
+    } catch (error) {
+      console.log("Group message save error:", error);
     }
   });
 
@@ -139,6 +175,7 @@ app.use("/api/auth", userRoutes);
 app.use("/api/message", messageRoutes);
 app.use("/api/notification", notificationRouters);
 app.use("/api/groups", groupsRouter);
+app.use("/api/groups/messages", groupMessageRoutes);
 
 // Database Connection
 connectDB();

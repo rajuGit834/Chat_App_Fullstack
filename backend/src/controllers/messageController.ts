@@ -58,19 +58,3 @@ export const getMessages = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// export const getAllMessage = async (req: AuthRequest, res: Response) => {
-//   try {
-//     const {userId} = req.params;
-//     console.log("Fetching all messages for user:", userId);
-
-//     const messages = await Message.find({
-//       $or: [ { receiver: userId }],
-//     }).sort({ createdAt: 1 }); 
-
-//     res.status(200).json({ success: true, messages });
-//   } catch (error) {
-//     console.error("Error fetching messages:", error);
-//     res.status(500).json({ success: false, error: "Internal server error" });
-//   }
-// };
-

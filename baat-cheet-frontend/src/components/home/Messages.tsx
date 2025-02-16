@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../redux/store";
 import { setMessage } from "../../redux/slices/usersSlice";
 import { getMessages } from "../../api/messagesApi";
+import { setGroupMessages } from "../../redux/slices/groupSlice";
 
 interface MessageType {
   _id: string;
@@ -14,7 +15,7 @@ interface MessageType {
 }
 
 interface MessagesProps {
-  messages: MessageType[];
+  messages: MessageType;
 }
 
 // interface ListProps {
@@ -67,7 +68,7 @@ interface MessagesProps {
 //   );
 // };
 
-const Messages: React.FC<MessagesProps> = ({ messages }) => {
+const Messages: React.FC<{ messages: any }> = ({ messages }) => {
   // const [onHover, setOnHover] = useState<String | null>(null);
   const dispatch = useDispatch();
   const selectedUser = useSelector(
@@ -85,6 +86,7 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
         if (response.data.success) {
           console.log("all messages", response.data.messages);
           dispatch(setMessage(response.data.messages));
+          dispatch(setGroupMessages([]));
         } else {
           console.log(response.data.error);
         }
@@ -101,44 +103,48 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
 
   return (
     <div className="flex flex-col gap-3 w-full overflow-y-auto h-[100%]">
-      {messages
-        .filter(
-          (msg) =>
-            (msg.sender === currentUser?._id &&
-              msg.receiver === selectedUser) ||
-            (msg.sender === selectedUser && msg.receiver === currentUser?._id)
-        )
-        .map((msg) => (
-          <div
-            key={msg._id}
-            className={`flex justify-between min-w-[150px] max-w-[45%] break-all relative p-3 rounded-lg ${
-              msg.sender === currentUser?._id
-                ? "ml-auto bg-blue-300"
-                : "mr-auto bg-gray-200"
-            }`}
-          >
+      {messages.length > 0 ? (
+        messages
+          // .filter(
+          //   (msg: any) =>
+          //     (msg.sender === currentUser?._id &&
+          //       msg.receiver === selectedUser) ||
+          //     (msg.sender === selectedUser && msg.receiver === currentUser?._id)
+          // )
+          .map((msg: any) => (
             <div
-              className="flex justify-between gap-2 w-full relative"
-              // onMouseEnter={() => setOnHover(msg.msgId)}
+              key={msg._id}
+              className={`flex justify-between min-w-[150px] max-w-[45%] break-all relative p-3 rounded-lg ${
+                msg.sender === currentUser?._id
+                  ? "ml-auto bg-blue-300"
+                  : "mr-auto bg-gray-200"
+              }`}
             >
-              {msg.imageUrl && (
-                <img
-                  className="h-[200px] w-[200px] bg-cover"
-                  src={msg.imageUrl}
-                  alt="msgImage"
-                />
-              )}
-              <p className="pl-2">{msg.message}</p>
+              <div
+                className="flex justify-between gap-2 w-full relative"
+                // onMouseEnter={() => setOnHover(msg.msgId)}
+              >
+                {msg.imageUrl && (
+                  <img
+                    className="h-[200px] w-[200px] bg-cover"
+                    src={msg.imageUrl}
+                    alt="msgImage"
+                  />
+                )}
+                <p className="pl-2">{msg.message}</p>
 
-              {/* {msg.msgId === onHover && <List msg={msg} />} */}
+                {/* {msg.msgId === onHover && <List msg={msg} />} */}
+              </div>
+              {/* <p className="text-[11px] text-gray-500 absolute bottom-0 right-5">
+                {
+                  new Date(msg?.createdAt && msg?.createdAt).toTimeString().split(" ")[0]
+                }
+              </p> */}
             </div>
-            {/* <p className="text-[11px] text-gray-500 absolute bottom-0 right-5">
-              {
-                new Date(msg?.createdAt && msg?.createdAt).toTimeString().split(" ")[0]
-              }
-            </p> */}
-          </div>
-        ))}
+          ))
+      ) : (
+        <p className="text-[20px]">Start chat now...</p>
+      )}
     </div>
   );
 };

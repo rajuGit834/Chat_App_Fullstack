@@ -1,17 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Menu, Avatar, Typography } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { getAllGroups } from "../../api/groupsApi";
-import { setGroups } from "../../redux/slices/groupSlice";
+import {
+  setGroupMessages,
+  setGroups,
+  setSelectedGroup,
+} from "../../redux/slices/groupSlice";
 import { useDispatch, useSelector } from "react-redux";
 import GroupSelector from "./GroupSelector";
+import { setMessage, setSelectedUser } from "../../redux/slices/usersSlice";
+import { getGroupMessageById } from "../../api/groupMessagesApi";
 
 const { Text } = Typography;
 
 const GroupList: React.FC = () => {
-  const [selectedGroup, setSelectedGroup]: any = useState("");
   const dispatch = useDispatch();
   const currentUser = useSelector((state: any) => state.users.getCurrentUser);
+  const selectedGroupId = useSelector(
+    (state: any) => state.groups.selectedGroupId
+  );
 
   //fetching groups details
   useEffect(() => {
@@ -23,7 +31,6 @@ const GroupList: React.FC = () => {
 
         if (response.data.success) {
           dispatch(setGroups(response.data.groups));
-          console.log("All groups", response.data.groups);
         } else {
           console.log(response.data.error);
         }
@@ -35,6 +42,26 @@ const GroupList: React.FC = () => {
     fetchAllGroups();
   }, []);
 
+  useEffect(() => {
+    if (!selectedGroupId) return;
+    const fetchGroupMessages = async () => {
+      try {
+        const response = await getGroupMessageById(selectedGroupId);
+        if (response.data.success) {
+          console.log("grp msg", response.data.groupMessages);
+          dispatch(setGroupMessages(response.data.groupMessages));
+          dispatch(setMessage([]));
+        } else {
+          console.log(response.data.error);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchGroupMessages();
+  }, [selectedGroupId]);
+
   const groups = useSelector((state: any) => state.groups.groups);
 
   return (
@@ -43,9 +70,10 @@ const GroupList: React.FC = () => {
       <Menu
         theme="dark"
         mode="inline"
-        defaultSelectedKeys={[""]}
+        selectedKeys={selectedGroupId ? [selectedGroupId] : []}
         onSelect={(e) => {
-          setSelectedGroup(e.selectedKeys[0]);
+          dispatch(setSelectedGroup(e.selectedKeys[0]));
+          dispatch(setSelectedUser(null));
           //   const socket = getSocket();
           //   socket.emit("deleteNotification", {
           //     currentUser: currentUser?._id,

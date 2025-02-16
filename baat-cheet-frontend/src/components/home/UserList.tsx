@@ -6,6 +6,7 @@ import { UserOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { setNotification } from "../../redux/slices/usersSlice";
 import { getAllNotifications } from "../../api/notificationApi";
+import { setSelectedGroup } from "../../redux/slices/groupSlice";
 
 const { Text } = Typography;
 
@@ -14,6 +15,7 @@ const UserList: React.FC = () => {
   const notifications = useSelector((state: any) => state.users.notifications);
   const users = useSelector((state: any) => state.users.users);
   const currentUser = useSelector((state: any) => state.users.getCurrentUser);
+  const selectedUser = useSelector((state: any) => state.users.selectedUser);
 
   const handleNotifications = (user: any) => {
     return notifications.filter(
@@ -55,9 +57,10 @@ const UserList: React.FC = () => {
       <Menu
         theme="dark"
         mode="inline"
-        defaultSelectedKeys={[""]}
+        selectedKeys={selectedUser ? [selectedUser] : []}
         onSelect={(e) => {
           dispatch(setSelectedUser(e.selectedKeys[0]));
+          dispatch(setSelectedGroup(null));
           const socket = getSocket();
           socket.emit("deleteNotification", {
             currentUser: currentUser?._id,
