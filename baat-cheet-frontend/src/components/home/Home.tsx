@@ -33,6 +33,7 @@ const Home: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
   const [userMessage, setUserMessage] = useState("");
   const dispatch = useDispatch();
+  const socket = getSocket();
 
   const users = useSelector((state: RootState) => state.users.users);
 
@@ -47,15 +48,119 @@ const Home: React.FC = () => {
   const user = selectedUser && users.find((user) => user._id === selectedUser);
 
   // sockets
+  // useEffect(() => {
+  //   console.log("Connecting to WebSocket...");
+
+  //   if (currentUser?._id) {
+  //     console.log(`Registering user: ${currentUser._id}`);
+  //     socket.emit("register", currentUser._id);
+  //   }
+
+  //   return () => {
+  //     console.log(`Unregistering user: ${currentUser?._id}`);
+  //     socket.emit("user_active_chat", { userId: currentUser?._id, chattingWith: null });
+  //   };
+  // }, [currentUser?._id]);
+
+  // useEffect(() => {
+  //   console.log("Connecting to WebSocket...");
+
+  //   if (currentUser?._id) {
+  //     // Register user socket ID on connect
+  //     socket.emit("register", currentUser._id);
+  //   }
+
+  //   const handleMessage = (data: MessageType) => {
+  //     console.log("Received message:", data);
+  //     // Ensure message is for the selected user
+  //     if (
+  //       (data.sender === currentUser?._id && data.receiver === selectedUser) ||
+  //       (data.sender === selectedUser && data.receiver === currentUser?._id)
+  //     ) {
+  //       dispatch(addMessage({ message: data }));
+  //     }
+
+  //     socket.emit("notification", data);
+  //   };
+
+  //   const handleNotification = (data: any) => {
+  //     if (data.sender !== selectedUser && currentUser?._id !== data.sender) {
+  //       dispatch(addNewNotification(data));
+  //     }
+  //   };
+
+  //   const handleDeleteNotification = (selectedUser: string) => {
+  //     dispatch(removeNotification(selectedUser));
+  //   };
+
+  //   socket.on("message", handleMessage);
+  //   socket.on("notification", handleNotification);
+  //   socket.on("deleteNotification", handleDeleteNotification);
+
+  //   return () => {
+  //     socket.off("message", handleMessage);
+  //     socket.off("notification", handleNotification);
+  //     socket.off("deleteNotification", handleDeleteNotification);
+  //   };
+  // }, [currentUser?._id, selectedUser]);
+
+  // useEffect(() => {
+  //   const socket = getSocket();
+  //   if (selectedUser) {
+  //     socket.emit("user_active_chat", {
+  //       userId: currentUser?._id,
+  //       chattingWith: selectedUser,
+  //     });
+  //   }
+
+  //   return () => {
+  //     socket.emit("user_active_chat", {
+  //       userId: currentUser?._id,
+  //       chattingWith: null, // Reset when chat is closed
+  //     });
+  //   };
+  // }, [selectedUser]);
+
+  // const messages = useSelector((state: RootState) => state.users.messages);
+
+  // const handleSubmitUserMessage = (): void => {
+  //   if (!userMessage.trim() && !image) return;
+  //   const socket = getSocket();
+
+  //   // New message object
+  //   const newMessage: MessageType = {
+  //     _id: "",
+  //     sender: currentUser?._id,
+  //     receiver: String(selectedUser),
+  //     message: userMessage,
+  //     imageUrl: image || "",
+  //     status: "sent",
+  //   };
+
+  //   socket.emit("message", newMessage);
+
+  //   setUserMessage("");
+  //   setImage(null);
+  // };
+
   useEffect(() => {
     console.log("Connecting to WebSocket...");
-    const socket = getSocket();
 
     if (currentUser?._id) {
-      // Register user socket ID on connect
+      console.log(`Registering user: ${currentUser._id}`);
       socket.emit("register", currentUser._id);
     }
 
+    return () => {
+      console.log(`Unregistering user: ${currentUser?._id}`);
+      socket.emit("user_active_chat", {
+        userId: currentUser?._id,
+        chattingWith: null,
+      });
+    };
+  }, [currentUser?._id]);
+
+  useEffect(() => {
     const handleMessage = (data: MessageType) => {
       console.log("Received message:", data);
       // Ensure message is for the selected user
@@ -86,23 +191,7 @@ const Home: React.FC = () => {
     return () => {
       socket.off("message", handleMessage);
       socket.off("notification", handleNotification);
-    };
-  }, [currentUser?._id, selectedUser]);
-
-  useEffect(() => {
-    const socket = getSocket();
-    if (selectedUser) {
-      socket.emit("user_active_chat", {
-        userId: currentUser?._id,
-        chattingWith: selectedUser,
-      });
-    }
-
-    return () => {
-      socket.emit("user_active_chat", {
-        userId: currentUser?._id,
-        chattingWith: null, // Reset when chat is closed
-      });
+      socket.off("deleteNotification", handleDeleteNotification);
     };
   }, [selectedUser]);
 
@@ -110,7 +199,6 @@ const Home: React.FC = () => {
 
   const handleSubmitUserMessage = (): void => {
     if (!userMessage.trim() && !image) return;
-    const socket = getSocket();
 
     // New message object
     const newMessage: MessageType = {

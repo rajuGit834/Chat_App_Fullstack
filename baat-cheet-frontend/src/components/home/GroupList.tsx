@@ -9,7 +9,7 @@ import GroupSelector from "./GroupSelector";
 const { Text } = Typography;
 
 const GroupList: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [selectedGroup, setSelectedGroup]: any = useState("");
   const dispatch = useDispatch();
   const currentUser = useSelector((state: any) => state.users.getCurrentUser);
 
@@ -24,7 +24,6 @@ const GroupList: React.FC = () => {
         if (response.data.success) {
           dispatch(setGroups(response.data.groups));
           console.log("All groups", response.data.groups);
-          setIsLoading(false);
         } else {
           console.log(response.data.error);
         }
@@ -37,11 +36,6 @@ const GroupList: React.FC = () => {
   }, []);
 
   const groups = useSelector((state: any) => state.groups.groups);
-  console.log("grops", groups);
-
-  if (isLoading) {
-    return <p>Loading...</p>;
-  }
 
   return (
     <>
@@ -50,14 +44,14 @@ const GroupList: React.FC = () => {
         theme="dark"
         mode="inline"
         defaultSelectedKeys={[""]}
-        // onSelect={(e) => {
-        //   dispatch(setSelectedUser(e.selectedKeys[0]));
-        //   const socket = getSocket();
-        //   socket.emit("deleteNotification", {
-        //     currentUser: currentUser?._id,
-        //     selectedUser: e.selectedKeys[0],
-        //   });
-        // }}
+        onSelect={(e) => {
+          setSelectedGroup(e.selectedKeys[0]);
+          //   const socket = getSocket();
+          //   socket.emit("deleteNotification", {
+          //     currentUser: currentUser?._id,
+          //     selectedUser: e.selectedKeys[0],
+          //   });
+        }}
       >
         {groups.map((group: any) => (
           <Menu.Item

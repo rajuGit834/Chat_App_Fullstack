@@ -6,12 +6,17 @@ let socket: Socket | null = null;
 export const getSocket = () => {
   if (!socket) {
     console.log("Creating socket connection.");
-    socket = io(SOCKET_URL, { withCredentials: true });
+    socket = io(SOCKET_URL, {
+      withCredentials: true,
+    });
 
-    socket.on("disconect", () => {
-      socket?.connect();
+    socket.on("connect", () => {
+      console.log("✅ Connected to server:", socket?.id);
+    });
+
+    socket.on("disconnect", (reason) => {
+      console.warn(`❌ Disconnected: ${reason}`);
     });
   }
   return socket;
 };
-

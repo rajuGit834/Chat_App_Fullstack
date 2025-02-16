@@ -49,7 +49,9 @@ const UserList: React.FC = () => {
 
   return (
     <>
-      <p className="float-end text-white font-bold mr-5 mt-2text-[17px]">Contact</p>
+      <p className="float-end text-white font-bold mr-5 mt-2text-[17px]">
+        Contact
+      </p>
       <Menu
         theme="dark"
         mode="inline"

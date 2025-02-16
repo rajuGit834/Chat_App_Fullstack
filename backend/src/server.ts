@@ -37,11 +37,6 @@ io.on("connection", (socket) => {
   socket.on("register", async (userId) => {
     users.set(userId, socket.id);
     updateStatusOfUser(userId, "online");
-    console.log(`User Registered: ${userId} -> ${socket.id}`);
-  });
-
-  socket.on("user_active_chat", ({ userId, chattingWith }) => {
-    activeChats.set(userId, chattingWith);
   });
 
   // Listen for Messages
@@ -102,6 +97,7 @@ io.on("connection", (socket) => {
   socket.on("deleteNotification", async (data) => {
     try {
       const { currentUser, selectedUser } = data;
+      activeChats.set(currentUser, selectedUser);
       const receiverSocketId = users.get(currentUser);
       if (receiverSocketId) {
         await Notification.deleteMany({
