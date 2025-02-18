@@ -30,6 +30,11 @@ const NotificationSchema = new mongoose.Schema(
       enum: ["sent", "delivered", "seen"],
       default: "sent",
     },
+    messageType: {
+      type: String,
+      enum: ["group", "personal"],
+      default: "personal",
+    },
   },
   { timestamps: true }
 );

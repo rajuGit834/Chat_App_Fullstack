@@ -19,3 +19,11 @@ export const loginUser = (credentials: { email: string; password: string }) => {
 export const getAllUsers = () => {
   return api.get("/auth/");
 };
+
+export const getUserById = (userId: any) => {
+  return api.get(`/auth/${userId}`);
+};
+
+export const getContactOfUser = () => {
+  return api.get("/auth/contacts");
+};

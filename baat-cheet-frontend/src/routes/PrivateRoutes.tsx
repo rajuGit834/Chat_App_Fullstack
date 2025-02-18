@@ -2,6 +2,7 @@ import { Navigate } from "react-router-dom";
 import { JSX, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setCurrentUser, setUsers } from "../redux/slices/usersSlice";
+import { getAllUsers } from "../api/usersApi";
 
 interface PrivateRouteProps {
   element: JSX.Element;
@@ -13,29 +14,21 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ element }) => {
 
   const checkAuthStatus = async () => {
     try {
-      const response = await fetch("http://localhost:4005/api/auth/", {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) throw new Error("Unauthorized");
-
-      const data = await response.json();
-      console.log("User Authenticated:", data);
-
-      dispatch(setUsers(data.users));
-
-      setIsAuthenticated(true);
-      dispatch(
-        setCurrentUser({
-          _id: data.logedInUser.id,
-          name: data.logedInUser.name,
-          email: data.logedInUser.email,
-        })
-      );
+      const response = await getAllUsers();
+      if (response.data.success) {
+        console.log("User Authenticated:", response.data);
+        setIsAuthenticated(true);
+        dispatch(
+          setCurrentUser({
+            _id: response.data.logedInUser.id,
+            name: response.data.logedInUser.name,
+            email: response.data.logedInUser.email,
+          })
+        );
+        dispatch(setUsers(response.data.users));
+      } else {
+        throw new Error("Unauthorized");
+      }
     } catch (error) {
       console.error("Auth Error:", error);
       setIsAuthenticated(false);
@@ -50,7 +43,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ element }) => {
     return <p>Loading...</p>;
   }
 
-  return isAuthenticated ? element : <Navigate to="/login" replace />;
+  return isAuthenticated ? element : <Navigate to="/login" />;
 };
 
 export default PrivateRoute;

@@ -16,6 +16,7 @@ import Message from "./models/messageModel";
 import Notification from "./models/notificationModel";
 import GroupMessage from "./models/groupMessageModel";
 import Group from "./models/groupModel";
+import User from "./models/usersModel";
 
 dotenv.config();
 
@@ -33,11 +34,9 @@ const io = new Server(server, {
 const users = new Map(); // Store connected users
 const activeChats = new Map(); //Store user chatting with
 
-io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
-
+io.on("connection", (socket: any) => {
   // Store user socket ID when they connect
-  socket.on("register", async (userId) => {
+  socket.on("register", async (userId: any) => {
     try {
       users.set(userId, socket.id);
       updateStatusOfUser(userId, "online");
@@ -58,7 +57,7 @@ io.on("connection", (socket) => {
   });
 
   // Listen for Messages
-  socket.on("message", async (data) => {
+  socket.on("message", async (data: any) => {
     const { sender, receiver, message, imageUrl } = data;
 
     try {
@@ -74,18 +73,20 @@ io.on("connection", (socket) => {
       await newMessage.save();
       // Send message to receiver (one-to-one chat)
       const receiverSocketId = users.get(receiver);
+      const senderSocketId = users.get(sender);
       console.log(`Receiver Socket ID: ${receiverSocketId}`);
       if (receiverSocketId) {
         io.to(receiverSocketId).emit("message", newMessage);
       }
+      io.to(senderSocketId).emit("message", newMessage);
 
-      socket.emit("message", newMessage);
+      // socket.emit("message", newMessage);
     } catch (error) {
       console.error("Message save error:", error);
     }
   });
 
-  socket.on("groupMessage", async (data) => {
+  socket.on("groupMessage", async (data: any) => {
     const { sender, group, message, imageUrl } = data;
     try {
       const newGroupMessage = new GroupMessage({
@@ -103,34 +104,54 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("notification", async (data) => {
+  socket.on("notification", async (data: any) => {
     try {
-      const { _id, sender, receiver, message, imageUrl, status } = data;
-      const receiverSocketId = users.get(receiver);
+      if (data.messageType === "personal") {
+        const {
+          _id,
+          sender,
+          receiver,
+          message,
+          imageUrl,
+          status,
+          messageType,
+        } = data;
+        const receiverSocketId = users.get(receiver);
 
-      if (activeChats.get(receiver) === sender) {
-        return;
-      }
+        if (activeChats.get(receiver) === sender) {
+          return;
+        }
 
-      const messageId = new mongoose.Types.ObjectId(_id);
+        const messageId = new mongoose.Types.ObjectId(_id);
 
-      const newNotification = await Notification.findOneAndUpdate(
-        { messageId },
-        { sender, receiver, message, imageUrl, status },
-        { upsert: true, new: true, setDefaultsOnInsert: true }
-      );
+        const newNotification = await Notification.findOneAndUpdate(
+          { messageId },
+          { sender, receiver, message, imageUrl, status },
+          { upsert: true, new: true, setDefaultsOnInsert: true }
+        );
 
-      console.log("Notification saved or updated:");
+        console.log("Notification saved or updated:");
 
-      if (receiverSocketId) {
-        io.to(receiverSocketId).emit("notification", newNotification);
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("notification", newNotification);
+        }
+      } else {
+        const { _id, sender, group, message, imageUrl, status, messageType } =
+          data;
+        const newNotification = await Notification.findOneAndUpdate(
+          { _id },
+          { sender, receiver: group, message, imageUrl, status, messageType },
+          { upsert: true, new: true, setDefaultsOnInsert: true }
+        );
+
+        io.to(group).emit("notification", newNotification);
       }
     } catch (error) {
       console.log("Notification save Error: ", error);
     }
   });
 
-  socket.on("deleteNotification", async (data) => {
+  socket.on("deleteNotification", async (data: any) => {
     try {
       const { currentUser, selectedUser } = data;
       activeChats.set(currentUser, selectedUser);
@@ -146,6 +167,80 @@ io.on("connection", (socket) => {
       console.log("Notification delete error: ", error);
     }
   });
+
+  //
+  socket.on("send-request", async (data: any) => {
+    try {
+      const { sender, userId } = data;
+      const user = await User.findById(userId);
+      if (!user) {
+        console.log("No user found with given id in send request event");
+        return;
+      }
+      if (!user.friendRequest.includes(sender)) {
+        user.friendRequest.push(sender);
+      }
+
+      await user.save();
+
+      const socketId = users.get(userId);
+
+      if (socketId) {
+        io.to(socketId).emit("send-request", user);
+      }
+    } catch (error) {
+      console.log("Sending request error: ", error);
+    }
+  });
+
+  socket.on("response-on-request", async (data: any) => {
+    try {
+      const { name, status, receiver, sender } = data;
+      await User.updateOne(
+        { _id: sender },
+        { $pull: { friendRequest: receiver } }
+      );
+
+      const updatedUser = await User.findById(sender);
+
+      const receiverSocketId = users.get(receiver);
+      const senderSocketId = users.get(sender);
+
+      if (status === "confirm") {
+        // adding contact in both user
+        await User.updateOne(
+          { _id: sender },
+          { $addToSet: { contacts: receiver } }
+        );
+
+        await User.updateOne(
+          { _id: receiver },
+          { $addToSet: { contacts: sender } }
+        );
+      }
+
+      if (senderSocketId) {
+        const updatedUser = await User.findById(sender);
+        io.to(senderSocketId).emit("response-on-request", {
+          from: "sender",
+          updatedUser,
+        });
+      }
+
+      if (receiverSocketId) {
+        const updatedUser = await User.findById(receiver);
+        io.to(receiverSocketId).emit("response-on-request", {
+          from: "receiver",
+          name,
+          status,
+          updatedUser,
+        });
+      }
+    } catch (error) {
+      console.log("error in response request");
+    }
+  });
+
   // Remove user from Map on disconnect
   socket.on("disconnect", () => {
     users.forEach((value, key) => {

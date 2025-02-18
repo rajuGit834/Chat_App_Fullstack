@@ -5,19 +5,6 @@ import { setMessage } from "../../redux/slices/usersSlice";
 import { getMessages } from "../../api/messagesApi";
 import { setGroupMessages } from "../../redux/slices/groupSlice";
 
-interface MessageType {
-  _id: string;
-  sender?: string;
-  receiver?: string;
-  message?: string;
-  imageUrl?: string;
-  status: "sent" | "delivered" | "seen";
-}
-
-interface MessagesProps {
-  messages: MessageType;
-}
-
 // interface ListProps {
 //   msg: MessageType;
 // }
@@ -71,14 +58,17 @@ interface MessagesProps {
 const Messages: React.FC<{ messages: any }> = ({ messages }) => {
   // const [onHover, setOnHover] = useState<String | null>(null);
   const dispatch = useDispatch();
+  const currentUser = useSelector(
+    (state: RootState) => state.users.getCurrentUser
+  );
   const selectedUser = useSelector(
     (state: RootState) => state.users.selectedUser
   );
 
   //fetching messages
   useEffect(() => {
-    if (!selectedUser) return;
     console.log("Fetching messages for:", selectedUser);
+    if (!selectedUser) return;
 
     const fetchMessageOfSelectedUser = async () => {
       try {
@@ -97,51 +87,35 @@ const Messages: React.FC<{ messages: any }> = ({ messages }) => {
     fetchMessageOfSelectedUser();
   }, [selectedUser]);
 
-  const currentUser = useSelector(
-    (state: RootState) => state.users.getCurrentUser
-  );
-
   return (
     <div className="flex flex-col gap-3 w-full overflow-y-auto h-[100%]">
       {messages.length > 0 ? (
-        messages
-          // .filter(
-          //   (msg: any) =>
-          //     (msg.sender === currentUser?._id &&
-          //       msg.receiver === selectedUser) ||
-          //     (msg.sender === selectedUser && msg.receiver === currentUser?._id)
-          // )
-          .map((msg: any) => (
+        messages.map((msg: any) => (
+          <div
+            key={msg._id}
+            className={`flex justify-between min-w-[150px] max-w-[45%] break-all relative p-3 rounded-lg ${
+              msg.sender === currentUser?._id
+                ? "ml-auto bg-blue-300"
+                : "mr-auto bg-gray-200"
+            }`}
+          >
             <div
-              key={msg._id}
-              className={`flex justify-between min-w-[150px] max-w-[45%] break-all relative p-3 rounded-lg ${
-                msg.sender === currentUser?._id
-                  ? "ml-auto bg-blue-300"
-                  : "mr-auto bg-gray-200"
-              }`}
+              className="flex justify-between gap-2 w-full relative"
+              // onMouseEnter={() => setOnHover(msg.msgId)}
             >
-              <div
-                className="flex justify-between gap-2 w-full relative"
-                // onMouseEnter={() => setOnHover(msg.msgId)}
-              >
-                {msg.imageUrl && (
-                  <img
-                    className="h-[200px] w-[200px] bg-cover"
-                    src={msg.imageUrl}
-                    alt="msgImage"
-                  />
-                )}
-                <p className="pl-2">{msg.message}</p>
+              {msg.imageUrl && (
+                <img
+                  className="h-[200px] w-[200px] bg-cover"
+                  src={msg.imageUrl}
+                  alt="msgImage"
+                />
+              )}
+              <p className="pl-2">{msg.message}</p>
 
-                {/* {msg.msgId === onHover && <List msg={msg} />} */}
-              </div>
-              {/* <p className="text-[11px] text-gray-500 absolute bottom-0 right-5">
-                {
-                  new Date(msg?.createdAt && msg?.createdAt).toTimeString().split(" ")[0]
-                }
-              </p> */}
+              {/* {msg.msgId === onHover && <List msg={msg} />} */}
             </div>
-          ))
+          </div>
+        ))
       ) : (
         <p className="text-[20px]">Start chat now...</p>
       )}

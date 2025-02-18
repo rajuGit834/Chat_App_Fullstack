@@ -3,6 +3,7 @@ import SignUp from "./components/signup/SignUp";
 import LogIn from "./components/login/LogIn";
 import Home from "./components/home/Home";
 import PrivateRoutes from "./routes/PrivateRoutes";
+import "antd/dist/reset.css";
 
 
 function App() {

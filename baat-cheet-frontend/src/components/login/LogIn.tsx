@@ -44,7 +44,6 @@ const LogIn: React.FC = () => {
 
   const onFinish = (values: any) => {
     handleLogin(values);
-    console.log("Received values of form: ", values);
   };
 
   return (

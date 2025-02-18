@@ -29,6 +29,7 @@ const UserSchema = new mongoose.Schema(
       default: "offline",
     },
     contacts: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    friendRequest: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   {
     timestamps: true,

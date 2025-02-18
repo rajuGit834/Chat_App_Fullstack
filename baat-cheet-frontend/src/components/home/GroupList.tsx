@@ -8,6 +8,7 @@ import {
   setSelectedGroup,
 } from "../../redux/slices/groupSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { getSocket } from "../../../services/socket";
 import GroupSelector from "./GroupSelector";
 import { setMessage, setSelectedUser } from "../../redux/slices/usersSlice";
 import { getGroupMessageById } from "../../api/groupMessagesApi";
@@ -17,9 +18,26 @@ const { Text } = Typography;
 const GroupList: React.FC = () => {
   const dispatch = useDispatch();
   const currentUser = useSelector((state: any) => state.users.getCurrentUser);
+  const notifications = useSelector((state: any) => state.users.notifications);
   const selectedGroupId = useSelector(
     (state: any) => state.groups.selectedGroupId
   );
+
+  const handleNotifications = (group: any) => {
+    return notifications.filter(
+      (notification: any) =>
+        group._id === notification.receiver &&
+        notification.messageType === "group"
+    );
+  };
+
+  const getLastMessageOfNotification = (group: any) => {
+    const filtredMessages = handleNotifications(group);
+    if (filtredMessages.length > 0) {
+      return filtredMessages[filtredMessages.length - 1].message;
+    }
+    return "";
+  };
 
   //fetching groups details
   useEffect(() => {
@@ -41,7 +59,7 @@ const GroupList: React.FC = () => {
 
     fetchAllGroups();
   }, []);
-
+  //fetching group message
   useEffect(() => {
     if (!selectedGroupId) return;
     const fetchGroupMessages = async () => {
@@ -74,11 +92,11 @@ const GroupList: React.FC = () => {
         onSelect={(e) => {
           dispatch(setSelectedGroup(e.selectedKeys[0]));
           dispatch(setSelectedUser(null));
-          //   const socket = getSocket();
-          //   socket.emit("deleteNotification", {
-          //     currentUser: currentUser?._id,
-          //     selectedUser: e.selectedKeys[0],
-          //   });
+          const socket = getSocket();
+          socket.emit("deleteNotification", {
+            currentUser: currentUser?._id,
+            selectedUser: e.selectedKeys[0],
+          });
         }}
       >
         {groups.map((group: any) => (
@@ -111,18 +129,17 @@ const GroupList: React.FC = () => {
                 </Text>
 
                 {/* Handling the notification */}
-                {/* {handleNotifications(user).length > 0 && (
-                <div className="flex gap-1">
-                  <p className="h-[25px] w-[25px] bg-red-400 rounded-full align-middle flex items-center justify-center font-bold">
-                    {handleNotifications(user).length}
-                  </p>
+                {handleNotifications(group).length > 0 && (
+                  <div className="flex gap-1">
+                    <p className="h-[25px] w-[25px] bg-red-400 rounded-full align-middle flex items-center justify-center font-bold">
+                      {handleNotifications(group).length}
+                    </p>
 
-                  <p className="truncate">
-                    {getLastMessageOfNotification(user)}
-                  </p>
-                </div>
-              )} */}
-                {/* <p>{allMessages.filter((msg) => msg.status === "sent" && msg.sender ===  user._id).length}</p> */}
+                    <p className="truncate">
+                      {getLastMessageOfNotification(group)}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </Menu.Item>

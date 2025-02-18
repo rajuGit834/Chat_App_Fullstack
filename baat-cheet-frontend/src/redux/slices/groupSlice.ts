@@ -29,7 +29,7 @@ const groupSlice = createSlice({
       state.groupMessages = action.payload;
     },
     addGroupMessage: (state, action) => {
-      console.log("in group slice" ,action.payload)
+      console.log("in group slice", action.payload);
       state.groupMessages = [...state.groupMessages, action.payload];
     },
   },

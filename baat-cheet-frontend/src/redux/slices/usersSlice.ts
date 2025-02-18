@@ -16,6 +16,7 @@ interface User {
   email: string;
   profilePic: string;
   status: "online" | "offline";
+  friendRequest: any;
 }
 
 interface CurrentUser {
@@ -26,6 +27,7 @@ interface CurrentUser {
 
 interface Notification extends MessageType {
   messageId: string;
+  messageType: "group" | "personal";
 }
 
 interface UserState {
@@ -40,7 +42,6 @@ interface UserState {
 const initialState: UserState = {
   users: [],
   messages: [],
-  // allMessages: [],
   selectedUser: null,
   getCurrentUser: null,
   currentUserId: null,
@@ -53,6 +54,12 @@ const userSlice = createSlice({
   reducers: {
     setUsers: (state, action) => {
       state.users = action.payload;
+    },
+    updateUser: (state, action) => {
+      const users = state.users.filter(
+        (user) => user._id !== action.payload._id
+      );
+      state.users = [...users, action.payload];
     },
     addNewUser: (state, action) => {
       state.users.push(action.payload);
@@ -76,7 +83,6 @@ const userSlice = createSlice({
       state.messages.push(action.payload.message);
     },
     setNotification: (state, action) => {
-      console.log("recv noti", action.payload);
       state.notifications = action.payload;
     },
     addNewNotification: (state, action) => {
@@ -97,6 +103,7 @@ export const {
   setUsers,
   addNewUser,
   setCurrentUser,
+  updateUser,
   setSelectedUser,
   setCurrentUserId,
   addMessage,

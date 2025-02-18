@@ -71,10 +71,6 @@ const Home: React.FC = () => {
 
     return () => {
       console.log(`Unregistering user: ${currentUser?._id}`);
-      socket.emit("user_active_chat", {
-        userId: currentUser?._id,
-        chattingWith: null,
-      });
     };
   }, [currentUser?._id]);
 
@@ -89,10 +85,14 @@ const Home: React.FC = () => {
         dispatch(addMessage({ message: data }));
       }
 
-      socket.emit("notification", data);
+      socket.emit("notification", { ...data, messageType: "personal" });
     };
 
     const handleNotification = (data: any) => {
+      if (data.message === "group" && data.group !== selectedGroupId) {
+        dispatch(addNewNotification(data));
+        return;
+      }
       if (data.sender !== selectedUser && currentUser?._id !== data.sender) {
         dispatch(addNewNotification(data));
       }
@@ -103,8 +103,13 @@ const Home: React.FC = () => {
     };
 
     const handleGroupMessage = (newGroupMessage: any) => {
-      console.log("handle group", newGroupMessage);
-      dispatch(addGroupMessage(newGroupMessage));
+      if (
+        newGroupMessage.group == String(selectedGroupId) ||
+        newGroupMessage.sender === currentUser._id
+      ) {
+        dispatch(addGroupMessage(newGroupMessage));
+      }
+      socket.emit("notification", { ...newGroupMessage, messageType: "group" });
     };
 
     socket.on("message", handleMessage);
@@ -118,33 +123,31 @@ const Home: React.FC = () => {
       socket.off("deleteNotification", handleDeleteNotification);
       socket.off("groupMessage", handleGroupMessage);
     };
-  }, [selectedUser]);
+  }, [selectedUser, selectedGroupId]);
 
   const handleSubmitUserMessage = () => {
     if (!userMessage.trim() && !image) return;
 
     // New message object
-    const newMessage: MessageType = {
-      _id: "",
-      sender: currentUser?._id,
-      receiver: String(selectedUser),
-      message: userMessage,
-      imageUrl: image || "",
-      status: "sent",
-    };
-
-    const newGroupMessage: GroupMessage = {
-      _id: "",
-      sender: currentUser?._id,
-      group: String(selectedGroupId),
-      message: userMessage,
-      imageUrl: image || "",
-      status: "sent",
-    };
-
     if (selectedUser) {
+      const newMessage: MessageType = {
+        _id: "",
+        sender: currentUser?._id,
+        receiver: String(selectedUser),
+        message: userMessage,
+        imageUrl: image || "",
+        status: "sent",
+      };
       socket.emit("message", newMessage);
     } else {
+      const newGroupMessage: GroupMessage = {
+        _id: "",
+        sender: currentUser?._id,
+        group: String(selectedGroupId),
+        message: userMessage,
+        imageUrl: image || "",
+        status: "sent",
+      };
       socket.emit("groupMessage", newGroupMessage);
     }
 
@@ -270,7 +273,7 @@ const Home: React.FC = () => {
             {messages.length > 0 ? (
               <Messages messages={messages} />
             ) : (
-              <Messages messages={groupMessages} />
+              groupMessages.length > 0 && <Messages messages={groupMessages} />
             )}
           </div>
         </Content>

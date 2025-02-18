@@ -53,11 +53,11 @@ export const findGroupByUserId = async (req: AuthRequest, res: Response) => {
       res.status(400).json({ error: "No groups found" });
     }
 
-    const group = await Group.find({ _id: { $in: userGroups?.groups } });
+    const groups = await Group.find({ _id: { $in: userGroups?.groups } });
 
     res.status(200).json({
       success: true,
-      groups: group,
+      groups,
     });
   } catch (error) {
     console.error("Error sending message:", error);
