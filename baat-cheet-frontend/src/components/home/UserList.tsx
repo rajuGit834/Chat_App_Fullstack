@@ -38,6 +38,7 @@ const UserList: React.FC = () => {
 
   // fetching notification
   useEffect(() => {
+      // fetching notification
     const fetchAllNotification = async () => {
       if (!currentUser?._id) return;
 
@@ -54,6 +55,7 @@ const UserList: React.FC = () => {
       }
     };
 
+      // fetching notification
     const fetchAllContactOfCurrentUser = async () => {
       try {
         const response = await getContactOfUser();

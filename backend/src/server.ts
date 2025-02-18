@@ -44,7 +44,6 @@ io.on("connection", (socket: any) => {
       const groups = await Group.find({ members: userId });
 
       if (!groups.length) {
-        console.log(`User ${userId} has no groups`);
         return;
       }
 
@@ -129,8 +128,6 @@ io.on("connection", (socket: any) => {
           { sender, receiver, message, imageUrl, status },
           { upsert: true, new: true, setDefaultsOnInsert: true }
         );
-
-        console.log("Notification saved or updated:");
 
         if (receiverSocketId) {
           io.to(receiverSocketId).emit("notification", newNotification);
@@ -219,20 +216,20 @@ io.on("connection", (socket: any) => {
         );
       }
 
-      if (senderSocketId) {
-        const updatedUser = await User.findById(sender);
-        io.to(senderSocketId).emit("response-on-request", {
-          from: "sender",
-          updatedUser,
-        });
-      }
-
       if (receiverSocketId) {
         const updatedUser = await User.findById(receiver);
         io.to(receiverSocketId).emit("response-on-request", {
           from: "receiver",
           name,
           status,
+          updatedUser,
+        });
+      }
+
+      if (senderSocketId) {
+        const updatedUser = await User.findById(sender);
+        io.to(senderSocketId).emit("response-on-request", {
+          from: "sender",
           updatedUser,
         });
       }
@@ -250,8 +247,6 @@ io.on("connection", (socket: any) => {
         console.log(`User ${key} disconnected.`);
       }
     });
-
-    console.log("User disconnected:", socket.id);
   });
 });
 

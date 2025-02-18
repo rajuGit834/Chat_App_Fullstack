@@ -1,10 +1,5 @@
-import { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { setMessage } from "../../redux/slices/usersSlice";
-import { getMessages } from "../../api/messagesApi";
-import { setGroupMessages } from "../../redux/slices/groupSlice";
-
 // interface ListProps {
 //   msg: MessageType;
 // }
@@ -57,38 +52,9 @@ import { setGroupMessages } from "../../redux/slices/groupSlice";
 
 const Messages: React.FC<{ messages: any }> = ({ messages }) => {
   // const [onHover, setOnHover] = useState<String | null>(null);
-  const dispatch = useDispatch();
   const currentUser = useSelector(
     (state: RootState) => state.users.getCurrentUser
   );
-  const selectedUser = useSelector(
-    (state: RootState) => state.users.selectedUser
-  );
-  const selectedGroupId = useSelector(
-    (state: any) => state.groups.selectedGroupId
-  );
-
-  //fetching messages
-  useEffect(() => {
-    console.log("Fetching messages for:", selectedUser);
-    if (!selectedUser) return;
-
-    const fetchMessageOfSelectedUser = async () => {
-      try {
-        const response = await getMessages(selectedUser);
-        if (response.data.success) {
-          console.log("all messages", response.data.messages);
-          dispatch(setMessage(response.data.messages));
-          dispatch(setGroupMessages([]));
-        } else {
-          console.log(response.data.error);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchMessageOfSelectedUser();
-  }, [selectedUser, selectedGroupId]);
 
   return (
     <div className="flex flex-col gap-3 w-full overflow-y-auto h-[100%]">
