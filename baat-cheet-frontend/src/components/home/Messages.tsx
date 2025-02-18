@@ -64,6 +64,9 @@ const Messages: React.FC<{ messages: any }> = ({ messages }) => {
   const selectedUser = useSelector(
     (state: RootState) => state.users.selectedUser
   );
+  const selectedGroupId = useSelector(
+    (state: any) => state.groups.selectedGroupId
+  );
 
   //fetching messages
   useEffect(() => {
@@ -85,7 +88,7 @@ const Messages: React.FC<{ messages: any }> = ({ messages }) => {
       }
     };
     fetchMessageOfSelectedUser();
-  }, [selectedUser]);
+  }, [selectedUser, selectedGroupId]);
 
   return (
     <div className="flex flex-col gap-3 w-full overflow-y-auto h-[100%]">

@@ -21,14 +21,12 @@ const AddContact: React.FC<{ contacts: any }> = ({ contacts }) => {
 
   useEffect(() => {
     const handleSendRequest = (data: any) => {
-      console.log("i received a request", data);
       dispatch(updateUser(data));
     };
 
     const handleResponse = (data: any) => {
       const { name, status, updatedUser } = data;
 
-      console.log("updatedUser", updatedUser, status);
       if (status === "confirm") {
         if (data.from === "receiver") {
           toast.success(`${name + " "} Accepted Your Request`, {

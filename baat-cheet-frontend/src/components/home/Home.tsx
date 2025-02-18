@@ -2,10 +2,15 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addMessage,
+  setMessage,
   addNewNotification,
   removeNotification,
 } from "../../redux/slices/usersSlice";
 import { getSocket } from "../../../services/socket";
+import {
+  addGroupMessage,
+  setGroupMessages,
+} from "../../redux/slices/groupSlice";
 
 import UploadImage from "./UploadImage";
 import Messages from "./Messages";
@@ -15,7 +20,8 @@ import GroupList from "./GroupList";
 
 import { Layout, theme, Avatar, Typography, Tooltip } from "antd";
 import { SendOutlined, UserOutlined } from "@ant-design/icons";
-import { addGroupMessage } from "../../redux/slices/groupSlice";
+
+import { getMessages } from "../../api/messagesApi";
 
 const { Header, Content, Sider, Footer } = Layout;
 const { Text } = Typography;
@@ -123,6 +129,27 @@ const Home: React.FC = () => {
       socket.off("deleteNotification", handleDeleteNotification);
       socket.off("groupMessage", handleGroupMessage);
     };
+  }, [selectedUser, selectedGroupId]);
+
+  //fetching messages
+  useEffect(() => {
+    if (!selectedUser) return;
+
+    const fetchMessageOfSelectedUser = async () => {
+      try {
+        const response = await getMessages(selectedUser);
+        if (response.data.success) {
+          console.log("all messages", response.data.messages);
+          dispatch(setMessage(response.data.messages));
+          dispatch(setGroupMessages([]));
+        } else {
+          console.log(response.data.error);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchMessageOfSelectedUser();
   }, [selectedUser, selectedGroupId]);
 
   const handleSubmitUserMessage = () => {

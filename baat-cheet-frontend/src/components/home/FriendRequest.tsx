@@ -12,7 +12,6 @@ const FriendRequest = () => {
 
   const findNameOfRequestSender = (senderid: any) => {
     const filterSender = users.filter((user: any) => user._id === senderid)[0];
-    console.log("filterd", filterSender);
     return filterSender.firstName + " " + filterSender.lastName;
   };
 

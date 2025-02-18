@@ -12,15 +12,12 @@ const GroupSelector: React.FC = () => {
   const currentUser = useSelector((state: any) => state.users.getCurrentUser);
 
   const handleChange = (selectedMembers: string[]) => {
+    // adding current user for group because creater is default
     const updatedMembers = [...new Set([...selectedMembers, currentUser._id])];
     setMembers(updatedMembers);
   };
 
   const handleCreateNewGroup = async () => {
-    if (!groupName.trim() || members.length <= 1) {
-      console.log("Group name is required and at least 2 members needed.");
-      return;
-    }
     try {
       const response = await createGroup(
         groupName,
