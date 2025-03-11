@@ -25,7 +25,7 @@ const server = createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: process.env.SOCKET_ORIGIN,
+    origin: process.env.SOCKET_ORIGIN || "http://localhost:5173",
     credentials: true,
   },
 });
@@ -57,9 +57,14 @@ io.on("connection", (socket: any) => {
 
   // Listen for Messages
   socket.on("message", async (data: any) => {
-    const { sender, receiver, message, imageUrl } = data;
-
     try {
+      const { sender, receiver, message, imageUrl } = data;
+      let isGroup = false;
+
+      if (data.isGroup) {
+        isGroup = true;
+      }
+
       // Save message to database
       const newMessage = new Message({
         sender,
@@ -67,19 +72,22 @@ io.on("connection", (socket: any) => {
         message,
         imageUrl,
         status: "sent",
+        isGroup,
       });
 
       await newMessage.save();
       // Send message to receiver (one-to-one chat)
       const receiverSocketId = users.get(receiver);
       const senderSocketId = users.get(sender);
-      console.log(`Receiver Socket ID: ${receiverSocketId}`);
-      if (receiverSocketId) {
+
+      if (receiverSocketId && !isGroup) {
         io.to(receiverSocketId).emit("message", newMessage);
+      } else if (isGroup) {
+        console.log(true);
+        io.to(receiver).emit("message", newMessage);
+        return;
       }
       io.to(senderSocketId).emit("message", newMessage);
-
-      // socket.emit("message", newMessage);
     } catch (error) {
       console.error("Message save error:", error);
     }
@@ -271,7 +279,7 @@ app.use("/api/groups/messages", groupMessageRoutes);
 connectDB();
 
 // Start Server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4005;
 server.listen(PORT, () =>
   console.log(`Server is running on http://localhost:${PORT}`)
 );

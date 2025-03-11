@@ -56,6 +56,8 @@ const Messages: React.FC<{ messages: any }> = ({ messages }) => {
     (state: RootState) => state.users.getCurrentUser
   );
 
+  console.log("Messagessss", messages);
+
   return (
     <div className="flex flex-col gap-3 w-full overflow-y-auto h-[100%]">
       {messages.length > 0 ? (

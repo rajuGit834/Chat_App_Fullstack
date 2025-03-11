@@ -8,7 +8,7 @@ const generateToken = ({
   name: string;
   email: string | null;
 }) => {
-  const SECRET_KEY = process.env.SECRET_KEY;
+  const SECRET_KEY = process.env.SECRET_KEY || "raju123";
 
   if (!SECRET_KEY) {
     throw new Error("No secret key provided");

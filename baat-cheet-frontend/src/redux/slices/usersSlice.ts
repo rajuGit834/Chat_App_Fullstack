@@ -32,7 +32,7 @@ interface Notification extends MessageType {
 
 interface UserState {
   users: User[];
-  messages: MessageType[];
+  messages: any;
   selectedUser: string | null;
   getCurrentUser: CurrentUser | null;
   currentUserId: string | null;

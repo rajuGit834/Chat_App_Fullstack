@@ -14,7 +14,7 @@ const MessageSchema = new mongoose.Schema(
     },
     message: {
       type: String,
-      default: "", 
+      default: "",
     },
     imageUrl: {
       type: String,
@@ -25,6 +25,8 @@ const MessageSchema = new mongoose.Schema(
       enum: ["sent", "delivered", "seen"],
       default: "sent",
     },
+    isGroup: { type: Boolean, default: false },
+    seenBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );
